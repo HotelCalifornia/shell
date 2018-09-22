@@ -52,7 +52,7 @@ commands:
   ;
 
 command: simple_command
-  | simple_command iomodifier_list background_opt
+  | command_and_args iomodifier_list background_opt
   ;
 
 simple_command:
