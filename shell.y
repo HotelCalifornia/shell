@@ -94,6 +94,13 @@ command_word:
   }
   ;
 
+iomodifier_list:
+  iomodifier_list iomodifier_opt {
+    printf("iomodifier list\n");
+  }
+  | /* empty */
+  ;
+
 iomodifier_opt:
   GREAT WORD {
     printf("   Yacc: insert output \"%s\"\n", $2->c_str());
@@ -104,13 +111,6 @@ iomodifier_opt:
     Shell::_currentCommand._inFile = $2;
   }
   | /* can be empty */
-  ;
-
-iomodifier_list:
-  iomodifier_list iomodifier_opt {
-    printf("iomodifier list\n");
-  }
-  | /* empty */
   ;
 
 background_opt:
