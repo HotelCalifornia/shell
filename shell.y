@@ -52,7 +52,8 @@ commands:
   ;
 
 command: simple_command
-       ;
+  | simple_command io_modifier_list background_opt
+  ;
 
 simple_command:
   command_and_args iomodifier_opt NEWLINE {
@@ -96,6 +97,11 @@ iomodifier_opt:
     Shell::_currentCommand._outFile = $2;
   }
   | /* can be empty */
+  ;
+
+iomodifier_list:
+  io_modifier_list io_modifier_opt
+  | /* empty */
   ;
 
 background_opt:
