@@ -98,6 +98,7 @@ iomodifier_opt:
   }
   | LESS WORD {
     printf("   Yacc: insert input \"%s\"\n", $2->c_str());
+    Shell::_currentCommand._inFile = $2;
   }
   | /* can be empty */
   ;
