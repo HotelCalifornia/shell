@@ -109,7 +109,10 @@ iomodifier_list:
   ;
 
 background_opt:
-  AMP
+  AMP {
+    printf("   Yacc: backgrounding\n");
+    Shell::_currentCommand._background = true;
+  }
   | /* empty */
   ;
 
