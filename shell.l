@@ -33,6 +33,9 @@ void myunputc(int c) {
 ">" {
   return GREAT;
 }
+">>" {
+  return GREATGREAT;
+}
 
 "&" {
   return AMP;

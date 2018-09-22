@@ -11,7 +11,7 @@
  *
  */
 
-%code requires 
+%code requires
 {
 #include <string>
 
@@ -28,7 +28,7 @@
 }
 
 %token <cpp_string> WORD
-%token NOTOKEN GREAT NEWLINE
+%token NOTOKEN GREAT NEWLINE AMP GREATGREAT PIPE
 
 %{
 //#define yylex yylex
@@ -54,12 +54,12 @@ commands:
 command: simple_command
        ;
 
-simple_command:	
+simple_command:
   command_and_args iomodifier_opt NEWLINE {
     printf("   Yacc: Execute command\n");
     Shell::_currentCommand.execute();
   }
-  | NEWLINE 
+  | NEWLINE
   | error NEWLINE { yyerrok; }
   ;
 
@@ -95,7 +95,7 @@ iomodifier_opt:
     printf("   Yacc: insert output \"%s\"\n", $2->c_str());
     Shell::_currentCommand._outFile = $2;
   }
-  | /* can be empty */ 
+  | /* can be empty */
   ;
 
 %%
