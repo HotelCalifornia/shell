@@ -99,7 +99,9 @@ iomodifier_opt:
   ;
 
 pipe_list:
-  pipe_list PIPE command_and_args
+  pipe_list PIPE command_and_args {
+    Shell::_currentCommand.insertSimpleCommand(Command::_currentSimpleCommand)
+  }
   | command_and_args
   | /* empty */
   ;
