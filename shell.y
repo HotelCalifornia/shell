@@ -96,7 +96,9 @@ command_word:
 
 iomodifier_list:
   iomodifier_opt
-  | iomodifier_list iomodifier_opt
+  | iomodifier_list iomodifier_opt {
+    printf("%s %s %s %s\n", $1->c_str(), $2->c_str(), $3->c_str(), $4->c_str());
+  }
   ;
 
 iomodifier_opt:
