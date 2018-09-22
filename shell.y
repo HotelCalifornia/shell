@@ -48,7 +48,7 @@ goal:
 
 commands:
   command
-  | commands PIPE command
+  | commands command
   ;
 
 command: simple_command
@@ -96,6 +96,11 @@ iomodifier_opt:
     Shell::_currentCommand._outFile = $2;
   }
   | /* can be empty */
+  ;
+
+background_opt:
+  AMP
+  | /* empty */
   ;
 
 %%
