@@ -95,10 +95,8 @@ command_word:
   ;
 
 iomodifier_list:
-  iomodifier_list iomodifier_opt {
-    printf("iomodifier list\n");
-  }
-  | /* empty */
+  iomodifier_opt
+  | iomodifier_list iomodifier_opt
   ;
 
 iomodifier_opt:
