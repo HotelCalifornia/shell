@@ -98,14 +98,6 @@ iomodifier_opt:
   | /* can be empty */
   ;
 
-pipe_list:
-  pipe_list PIPE command_and_args {
-    Shell::_currentCommand.insertSimpleCommand(Command::_currentSimpleCommand)
-  }
-  | command_and_args
-  | /* empty */
-  ;
-
 %%
 
 void
