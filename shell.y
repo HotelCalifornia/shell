@@ -49,7 +49,7 @@ goal:
 commands:
   command
   | commands PIPE command {
-    insertSimpleCommand(Command::_currentSimpleCommand);
+    Shell::_currentCommand.insertSimpleCommand(Command::_currentSimpleCommand);
   }
   ;
 
