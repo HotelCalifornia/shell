@@ -52,7 +52,7 @@ commands:
   ;
 
 command: simple_command
-  | simple_command io_modifier_list background_opt
+  | simple_command iomodifier_list background_opt
   ;
 
 simple_command:
@@ -100,7 +100,7 @@ iomodifier_opt:
   ;
 
 iomodifier_list:
-  io_modifier_list io_modifier_opt
+  iomodifier_list iomodifier_opt
   | /* empty */
   ;
 
