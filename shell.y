@@ -43,10 +43,7 @@ int yylex();
 %%
 
 goal:
-  commands {
-    printf("   Yacc: Execute command\n");
-    Shell::_currentCommand.execute();
-  }
+  commands
   ;
 
 commands:
@@ -55,7 +52,10 @@ commands:
   ;
 
 command_line:
-  pipe_list iomodifier_list background_opt NEWLINE
+  pipe_list iomodifier_list background_opt NEWLINE {
+    printf("   Yacc: Execute command\n");
+    Shell::_currentCommand.execute();
+  }
   | NEWLINE
   | error NEWLINE { yyerrok; }
   ;
