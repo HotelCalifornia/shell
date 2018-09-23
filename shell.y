@@ -112,13 +112,11 @@ iomodifier_opt:
   }
   | GREATAMP WORD { /* redirect stdout and stderr */
     printf("   Yacc: insert output (and err) \"%s\"\n", $2->c_str());
-    Shell::_currentCommand._outFile = $2;
-    Shell::_currentCommand._errFile = $2;
+    Shell::_currentCommand._outFile = Shell::_currentCommand._errFile = $2;
   }
   | GREATGREATAMP WORD { /* redirect stdout and stderr and append */
     printf("   Yacc: insert output (and err) (append) \"%s\"\n", $2->c_str());
-    Shell::_currentCommand._outFile = $2;
-    Shell::_currentCommand._errFile = $2;
+    Shell::_currentCommand._outFile = Shell::_currentCommand._errFile = $2;
   }
   ;
 
