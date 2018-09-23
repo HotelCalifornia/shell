@@ -43,31 +43,39 @@ int yylex();
 %%
 
 goal:
-  commands
+  commands {
+    Shell::_currentCommand.execute();
+  }
   ;
 
 commands:
-  command
-  | commands PIPE command background_opt {
-    Shell::_currentCommand.insertSimpleCommand(Command::_currentSimpleCommand);
-  }
+  command_line
+  | commands command_line
   ;
 
-command: simple_command;
-
-simple_command:
-  command_and_args iomodifier_list NEWLINE {
-    printf("   Yacc: Execute simple command\n");
-    Shell::_currentCommand.execute();
-  }
+command_line:
+  pipe_list iomodifier_list background_opt NEWLINE
   | NEWLINE
   | error NEWLINE { yyerrok; }
+  ;
+
+pipe_list:
+  pipe_list PIPE command_and_args
+  | command_and_args
   ;
 
 command_and_args:
   command_word argument_list {
     Shell::_currentCommand.
     insertSimpleCommand( Command::_currentSimpleCommand );
+  }
+  ;
+
+command_word:
+  WORD {
+    printf("   Yacc: insert command \"%s\"\n", $1->c_str());
+    Command::_currentSimpleCommand = new SimpleCommand();
+    Command::_currentSimpleCommand->insertArgument( $1 );
   }
   ;
 
@@ -83,12 +91,9 @@ argument:
   }
   ;
 
-command_word:
-  WORD {
-    printf("   Yacc: insert command \"%s\"\n", $1->c_str());
-    Command::_currentSimpleCommand = new SimpleCommand();
-    Command::_currentSimpleCommand->insertArgument( $1 );
-  }
+iomodifier_list:
+  iomodifier_opt
+  | iomodifier_list iomodifier_opt
   ;
 
 iomodifier_opt:
@@ -103,11 +108,6 @@ iomodifier_opt:
   | /* can be empty */
   ;
 
-iomodifier_list:
-  iomodifier_opt
-  | iomodifier_list iomodifier_opt
-  ;
-
 background_opt:
   AMP {
     printf("   Yacc: backgrounding\n");
@@ -115,6 +115,17 @@ background_opt:
   }
   | /* empty */
   ;
+
+/* command: simple_command;
+
+simple_command:
+  command_and_args iomodifier_list NEWLINE {
+    printf("   Yacc: Execute simple command\n");
+    Shell::_currentCommand.execute();
+  }
+  | NEWLINE
+  | error NEWLINE { yyerrok; }
+  ; */
 
 %%
 
