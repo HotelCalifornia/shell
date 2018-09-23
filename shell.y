@@ -28,7 +28,7 @@
 }
 
 %token <cpp_string> WORD
-%token NOTOKEN GREAT LESS NEWLINE AMP GREATGREAT PIPE
+%token NOTOKEN GREAT LESS NEWLINE AMP GREATGREAT GREATAMP GREATGREATAMP PIPE
 
 %{
 //#define yylex yylex
@@ -98,13 +98,27 @@ iomodifier_list:
   ;
 
 iomodifier_opt:
-  GREAT WORD {
+  GREAT WORD { /* standard output redirection */
     printf("   Yacc: insert output \"%s\"\n", $2->c_str());
     Shell::_currentCommand._outFile = $2;
   }
-  | LESS WORD {
+  | LESS WORD { /* standard input redirection */
     printf("   Yacc: insert input \"%s\"\n", $2->c_str());
     Shell::_currentCommand._inFile = $2;
+  }
+  | GREATGREAT WORD { /* redirect stdout and append */
+    printf("   Yacc: insert output (append) \"%s\"\n", $2->c_str());
+    Shell::_currentCommand._outFile = $2;
+  }
+  | GREATAMP WORD { /* redirect stdout and stderr */
+    printf("   Yacc: insert output (and err) \"%s\"\n", $2->c_str());
+    Shell::_currentCommand._outFile = $2;
+    Shell::_currentCommand._errFile = $2;
+  }
+  | GREATGREATAMP WORD { /* redirect stdout and stderr and append */
+    printf("   Yacc: insert output (and err) (append) \"%s\"\n", $2->c_str());
+    Shell::_currentCommand._outFile = $2;
+    Shell::_currentCommand._errFile = $2;
   }
   ;
 
