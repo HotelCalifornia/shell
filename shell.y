@@ -82,7 +82,7 @@ command_word:
 
 argument_list:
   argument_list argument
-  | /* can be empty */
+  | %empty /* can be empty */
   ;
 
 argument:
@@ -106,7 +106,7 @@ iomodifier_opt:
     printf("   Yacc: insert input \"%s\"\n", $2->c_str());
     Shell::_currentCommand._inFile = $2;
   }
-  | /* can be empty */
+  | %empty /* can be empty */
   ;
 
 background_opt:
