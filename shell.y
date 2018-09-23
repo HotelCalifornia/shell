@@ -48,7 +48,7 @@ goal:
 
 commands:
   command
-  | commands PIPE command {
+  | commands PIPE command background_opt {
     Shell::_currentCommand.insertSimpleCommand(Command::_currentSimpleCommand);
   }
   ;
@@ -56,7 +56,7 @@ commands:
 command: simple_command;
 
 simple_command:
-  command_and_args iomodifier_list background_opt NEWLINE {
+  command_and_args iomodifier_list NEWLINE {
     printf("   Yacc: Execute simple command\n");
     Shell::_currentCommand.execute();
   }
