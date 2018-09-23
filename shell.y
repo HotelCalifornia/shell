@@ -44,6 +44,7 @@ int yylex();
 
 goal:
   commands {
+    printf("   Yacc: Execute command\n");
     Shell::_currentCommand.execute();
   }
   ;
