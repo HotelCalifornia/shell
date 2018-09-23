@@ -9,7 +9,7 @@ CCFLAGS= -g -std=c++17
 WARNFLAGS= -Wall -Wextra -pedantic
 
 LEX=lex -l
-YACC=yacc -y -d -t --debug
+YACC=yacc -y -d -t -v --debug
 
 EDIT_MODE_ON=
 
@@ -19,7 +19,7 @@ endif
 
 all: git-commit shell
 
-lex.yy.o: shell.l 
+lex.yy.o: shell.l
 	$(LEX) -o lex.yy.cc shell.l
 	$(CC) $(CCFLAGS) -c lex.yy.cc
 
@@ -60,4 +60,3 @@ clean:
 	rm -f test-shell/sh-in test-shell/sh-out
 	rm -f test-shell/shell-in test-shell/shell-out
 	rm -f test-shell/err1 test-shell/file-list
-
