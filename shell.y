@@ -95,6 +95,7 @@ argument:
 iomodifier_list:
   iomodifier_opt
   | iomodifier_list iomodifier_opt
+  | %empty
   ;
 
 iomodifier_opt:
@@ -106,7 +107,6 @@ iomodifier_opt:
     printf("   Yacc: insert input \"%s\"\n", $2->c_str());
     Shell::_currentCommand._inFile = $2;
   }
-  | %empty /* can be empty */
   ;
 
 background_opt:
