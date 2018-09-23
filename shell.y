@@ -114,7 +114,7 @@ background_opt:
     printf("   Yacc: backgrounding\n");
     Shell::_currentCommand._background = true;
   }
-  | /* empty */
+  | %empty /* empty */
   ;
 
 /* command: simple_command;
