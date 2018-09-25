@@ -160,9 +160,9 @@ void Command::execute() {
       }
     }
     // restore stdin, stdout, stderr
-    dup2(stdinfd, 0);
-    dup2(stdoutfd, 1);
-    dup2(stderrfd, 2);
+    dup2(0, stdinfd);
+    dup2(1, stdoutfd);
+    dup2(2, stderrfd);
 
     close(stdinfd);
     close(stdoutfd);
