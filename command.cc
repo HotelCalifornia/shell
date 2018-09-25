@@ -129,6 +129,7 @@ void Command::execute() {
         execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
     }
+    if (_background) std::cout << "[1] " << pid << std::endl;
     if (!_background) waitpid(pid, NULL, 0);
     // Clear to prepare for next command
     clear();
