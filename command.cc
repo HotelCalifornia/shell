@@ -19,6 +19,10 @@
 
 #include <iostream>
 
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
 #include "command.hh"
 #include "shell.hh"
 
@@ -89,7 +93,7 @@ void Command::print() {
 
 void Command::execute() {
     // Don't do anything if there are no simple commands
-    if ( _simpleCommands.size() == 0 ) {
+    if (_simpleCommands.size() == 0) {
         Shell::prompt();
         return;
     }
@@ -101,7 +105,35 @@ void Command::execute() {
     // For every simple command fork a new process
     // Setup i/o redirection
     // and call exec
+    int pid;
+    for (auto cmd : _simpleCommands) {
+      std::cerr << "before fork" << std::endl;
+      pid = fork();
+      std::cerr << "after fork" << std::endl;
 
+      if (pid == -1) {
+        perror("fork\n");
+        exit(2);
+      }
+
+      // int df_in = dup(0);
+      // int df_out = dup(1);
+      // int df_err = dup(2);
+
+      // TODO: pipe
+      // int fdpipe[_simpleCommands.size()];
+
+
+      if (pid == 0) {
+        // convert from (std::string*) to (const* char*)
+        std::vector<char*> args(cmd->_arguments.size());
+        for (auto arg : cmd->_arguments) args.push_back(arg->data());
+        args.push_back(NULL);
+
+        execvp(args[0], args.data());
+      }
+    }
+    waitpid(pid, NULL, 0);
     // Clear to prepare for next command
     clear();
 
