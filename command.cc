@@ -132,14 +132,14 @@ void Command::execute() {
 
       if (_inFile) ifd = creat(_inFile->c_str(), 0666);
 
-      if (int e0 = dup2(stdinfd, ifd); e0 == -1) {
+      if (int e0 = dup2(ifd, stdinfd); e0 == -1) {
         perror("fatal: redirect stdin\n");
         exit(2);
       }
-      if (int e1 = dup2(stdoutfd, ofd); e1 == -1) {
+      if (int e1 = dup2(ofd, stdoutfd); e1 == -1) {
         perror("fatal: redirect stdout\n");
       }
-      if (int e2 = dup2(stderrfd, efd); e2 == -1) {
+      if (int e2 = dup2(efd, stderrfd); e2 == -1) {
         perror("fatal: redirect stderr\n");
       }
 
