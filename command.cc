@@ -138,7 +138,7 @@ void Command::execute() {
         // std::cerr << "in child process, converted " << std::endl;
         std::vector<char*> as;
         for (auto a : cmd->_arguments) as.push_back(a->data());
-        execvp(cmd->_arguments[0]->c_str(), cmd->_arguments.data());
+        execvp(cmd->_arguments[0]->c_str(), as.data());
       }
     }
     if (!_background) waitpid(pid, NULL, 0);
