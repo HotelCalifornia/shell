@@ -119,7 +119,7 @@ void Command::execute() {
 
     int pipefd[2];
     for (auto cmd : _simpleCommands) {
-      std::cerr << "executing " << *cmd->_arguments[0];
+      // std::cerr << "executing " << *cmd->_arguments[0];
       // special thanks to https://stackoverflow.com/questions/17630247/coding-multiple-pipe-in-c/17631589
       pipe(pipefd);
 
@@ -169,13 +169,13 @@ void Command::execute() {
         // end TODO
       }
 #endif
-      std::cerr << std::endl << "\tmain execution" << std::endl;
+      // std::cerr << std::endl << "\tmain execution" << std::endl;
       // main execution + piping
       if ((pid = fork()) == -1) {
         perror("fatal: fork\n");
         exit(2);
       } else if (pid == 0) { // child proc
-        std::cerr << "\t\tchild proc" << std::endl;
+        // std::cerr << "\t\tchild proc" << std::endl;
         dup2(ifd, 0);
 
         if (cmd != _simpleCommands.back())
