@@ -127,7 +127,9 @@ void Command::execute() {
         std::cerr << "in child process " << *cmd->_arguments[0] << std::endl;
         // convert from (std::string*) to (const* char*)
         std::vector<char*> args(cmd->_arguments.size());
-        for (auto arg : cmd->_arguments) args.push_back(arg->data());
+        for (auto arg : cmd->_arguments) {
+          args.push_back(arg->c_str());
+        }
         args.push_back(NULL);
 
         std::cerr << "in child process, converted " << args[0] << std::endl;
