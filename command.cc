@@ -111,11 +111,11 @@ void Command::execute() {
 
     // int ifd = 0;
     int ofd = 1;
-    int efd = 2;
+    // int efd = 2;
 
     // int stdinfd = dup(ifd);
     int stdoutfd = dup(ofd);
-    int stderrfd = dup(efd);
+    // int stderrfd = dup(efd);
 
     for (auto cmd : _simpleCommands) {
       pid = fork();
@@ -126,9 +126,9 @@ void Command::execute() {
       }
 
       // only need to open output fd once if out and err go to same place
-      if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
-      else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
-      else if (_errFile) efd = creat(_errFile->c_str(), 0666);
+      // if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
+      /*else*/ if (_outFile) ofd = creat(_outFile->c_str(), 0666);
+      // else if (_errFile) efd = creat(_errFile->c_str(), 0666);
 
       // if (_inFile) ifd = creat(_inFile->c_str(), 0666);
 
@@ -144,14 +144,14 @@ void Command::execute() {
         perror("fatal: redirect stdout\n");
         exit(2);
       }
-      if (efd < 0) {
-        perror("fatal: creat error file\n");
-        exit(2);
-      }
-      if (int e2 = dup2(efd, 1); e2 == -1) {
-        perror("fatal: redirect stderr\n");
-        exit(2);
-      }
+      // if (efd < 0) {
+      //   perror("fatal: creat error file\n");
+      //   exit(2);
+      // }
+      // if (int e2 = dup2(efd, 1); e2 == -1) {
+      //   perror("fatal: redirect stderr\n");
+      //   exit(2);
+      // }
 
 
       // TODO: pipe
@@ -170,15 +170,11 @@ void Command::execute() {
         execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
       dup2(stdoutfd, 1);
-      dup2(stderrfd, 2);
+      // dup2(stderrfd, 2);
     }
     // restore stdin, stdout, stderr
     // dup2(0, stdinfd);
     // dup2(2, stderrfd);
-
-    // close(stdinfd);
-    // close(stdoutfd);
-    // close(stderrfd);
 
     if (_background) std::cout << "[1] " << pid << std::endl;
     if (!_background) waitpid(pid, NULL, 0);
