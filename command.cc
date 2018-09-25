@@ -107,7 +107,6 @@ void Command::execute() {
     // and call exec
     int pid;
     for (auto cmd : _simpleCommands) {
-      std::cerr << "before fork" << std::endl;
       pid = fork();
 
       if (pid == -1) {
@@ -122,22 +121,10 @@ void Command::execute() {
       // TODO: pipe
       // int fdpipe[_simpleCommands.size()];
 
-      // std::cerr << pid << std::endl;
       if (pid == 0) {
-        std::cerr << "in child process " << *cmd->_arguments[0] << std::endl;
-        // convert from (std::string*) to (const* char*)
-        // std::vector<char*> args(cmd->_arguments.size() + 1);
-        // for (auto arg : cmd->_arguments) {
-        //   args.push_back(arg->data());
-        // }
-        // args.push_back(NULL);
-        // std::cerr << args[0] << " " << args[1] << std::endl;
-        // for (auto arg : args) std::cerr << arg << ",";
-        // std::cerr << std::endl;
-
-        // std::cerr << "in child process, converted " << std::endl;
         std::vector<char*> as;
         for (auto a : cmd->_arguments) as.push_back(a->data());
+
         execvp(cmd->_arguments[0]->c_str(), as.data());
       }
     }
