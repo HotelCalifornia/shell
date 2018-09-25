@@ -119,6 +119,7 @@ void Command::execute() {
 
     int pipefd[2];
     for (auto cmd : _simpleCommands) {
+      std::cerr << "executing " << cmd->_arguments[0] << std::endl;
       // special thanks to https://stackoverflow.com/questions/17630247/coding-multiple-pipe-in-c/17631589
       pipe(pipefd);
 
