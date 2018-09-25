@@ -148,9 +148,9 @@ void Command::execute() {
       // int fdpipe[_simpleCommands.size()];
 
       if (pid == 0) {
-        close(stdinfd);
-        close(stdoutfd);
-        close(stderrfd);
+        // close(stdinfd);
+        // close(stdoutfd);
+        // close(stderrfd);
 
         // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
         std::vector<char*> argv;
