@@ -101,7 +101,7 @@ void Command::execute() {
     }
 
     // Print contents of Command data structure
-    print();
+    // print();
 
     // Add execution here
     // For every simple command fork a new process
@@ -163,7 +163,7 @@ void Command::execute() {
     dup2(stdinfd, 0);
     dup2(stdoutfd, 1);
     dup2(stderrfd, 2);
-    
+
     if (_background) std::cout << "[1] " << pid << std::endl;
     if (!_background) waitpid(pid, NULL, 0);
     // Clear to prepare for next command
