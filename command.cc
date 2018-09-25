@@ -135,7 +135,7 @@ void Command::execute() {
         for (auto arg : args) std::cerr << arg << ",";
         std::cerr << std::endl;
 
-        std::cerr << "in child process, converted " << args[0] << std::endl;
+        std::cerr << "in child process, converted " << std::endl;
 
         execvp(args[0], args.data());
       }
