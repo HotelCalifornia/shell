@@ -164,7 +164,7 @@ void Command::execute() {
         execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
       dup2(stdoutfd, 1);
-      close(stdoutfd);
+      // close(stdoutfd);
     }
     // restore stdin, stdout, stderr
     // dup2(0, stdinfd);
