@@ -122,7 +122,7 @@ void Command::execute() {
       // TODO: pipe
       // int fdpipe[_simpleCommands.size()];
 
-
+      std::cerr << pid << std::endl;
       if (pid == 0) {
         // convert from (std::string*) to (const* char*)
         std::vector<char*> args(cmd->_arguments.size());
