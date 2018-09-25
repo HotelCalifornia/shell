@@ -131,6 +131,7 @@ void Command::execute() {
 
       // file redirection
       if (cmd == _simpleCommands.back()) { // last command, send output to redirect
+        std::cerrr << "last command" << std::endl;
         // only need to open output fd once if out and err go to same place
         if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
         else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
@@ -153,6 +154,7 @@ void Command::execute() {
           exit(2);
         }
       } else if (cmd == _simpleCommands.front()) { // first command, get input from redirect
+        std::cerr << "first command" << std::endl;
         if (_inFile) ifd = creat(_inFile->c_str(), 0666);
 
         // TODO: ????
@@ -166,11 +168,13 @@ void Command::execute() {
         }
         // end TODO
       }
+      std::cerr << "\tmain execution" << std::endl;
       // main execution + piping
       if ((pid = fork()) == -1) {
         perror("fatal: fork\n");
         exit(2);
       } else if (pid == 0) { // child proc
+        std::cerr << "\t\tchild proc" << std::endl;
         dup2(ifd, 0);
         dup2(pipefd[1], 1);
 
