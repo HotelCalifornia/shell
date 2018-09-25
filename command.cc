@@ -105,7 +105,7 @@ void Command::execute() {
     // For every simple command fork a new process
     // Setup i/o redirection
     // and call exec
-    int pid;
+    pid_t pid;
     for (auto cmd : _simpleCommands) {
       pid = fork();
 
@@ -122,10 +122,11 @@ void Command::execute() {
       // int fdpipe[_simpleCommands.size()];
 
       if (pid == 0) {
-        std::vector<char*> as;
-        for (auto a : cmd->_arguments) as.push_back(a->data());
+        // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
+        std::vector<char*> argv;
+        for (auto arg : cmd->_arguments) argv.push_back(arg->data());
 
-        execvp(cmd->_arguments[0]->c_str(), as.data());
+        execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
     }
     if (!_background) waitpid(pid, NULL, 0);
