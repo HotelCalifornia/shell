@@ -108,9 +108,15 @@ void Command::execute() {
     // Setup i/o redirection
     // and call exec
     pid_t pid;
-    int ofd = 0;
-    int ifd = 1;
+
+    int ifd = 0;
+    int ofd = 1;
     int efd = 2;
+
+    // int stdin = dup(ifd);
+    // int stdout = dup(ofd);
+    // int stderr = dup(efd);
+
     for (auto cmd : _simpleCommands) {
       pid = fork();
 
