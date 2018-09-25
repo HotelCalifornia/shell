@@ -126,18 +126,18 @@ void Command::execute() {
       if (pid == 0) {
         std::cerr << "in child process " << *cmd->_arguments[0] << std::endl;
         // convert from (std::string*) to (const* char*)
-        std::vector<char*> args(cmd->_arguments.size() + 1);
-        for (auto arg : cmd->_arguments) {
-          args.push_back(arg->data());
-        }
-        args.push_back(NULL);
-        std::cerr << args[0] << " " << args[1] << std::endl;
-        for (auto arg : args) std::cerr << arg << ",";
-        std::cerr << std::endl;
+        // std::vector<char*> args(cmd->_arguments.size() + 1);
+        // for (auto arg : cmd->_arguments) {
+        //   args.push_back(arg->data());
+        // }
+        // args.push_back(NULL);
+        // std::cerr << args[0] << " " << args[1] << std::endl;
+        // for (auto arg : args) std::cerr << arg << ",";
+        // std::cerr << std::endl;
 
-        std::cerr << "in child process, converted " << std::endl;
+        // std::cerr << "in child process, converted " << std::endl;
 
-        execvp(args[0], args.data());
+        execvp(cmd->_arguments[0].c_str(), cmd->_arguments.data());
       }
     }
     if (!_background) waitpid(pid, NULL, 0);
