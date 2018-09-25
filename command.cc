@@ -128,7 +128,7 @@ void Command::execute() {
       // only need to open output fd once if out and err go to same place
       if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
       else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
-      // else if (_errFile) efd = creat(_errFile->c_str(), 0666);
+      else if (_errFile) efd = creat(_errFile->c_str(), 0666);
 
       // if (_inFile) ifd = creat(_inFile->c_str(), 0666);
 
@@ -160,7 +160,7 @@ void Command::execute() {
       if (pid == 0) {
         // close(stdinfd);
         close(stdoutfd);
-        close(stderrfd);
+        // close(stderrfd);
 
         // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
         std::vector<char*> argv;
