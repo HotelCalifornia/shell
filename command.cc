@@ -109,13 +109,13 @@ void Command::execute() {
     // and call exec
     pid_t pid;
 
-    int ifd = 0;
-    int ofd = 1;
-    int efd = 2;
-
-    int stdinfd = dup(ifd);
-    int stdoutfd = dup(ofd);
-    int stderrfd = dup(efd);
+    // int ifd = 0;
+    // int ofd = 1;
+    // int efd = 2;
+    //
+    // int stdinfd = dup(ifd);
+    // int stdoutfd = dup(ofd);
+    // int stderrfd = dup(efd);
 
     int pipefd[2];
     for (auto cmd : _simpleCommands) {
@@ -128,7 +128,7 @@ void Command::execute() {
       std::vector<char*> argv;
       for (auto arg : cmd->_arguments) argv.push_back(arg->data());
       argv.push_back(NULL);
-
+#if 0
       // file redirection
       if (cmd == _simpleCommands.back()) { // last command, send output to redirect
         std::cerr << " (last command)";
@@ -168,6 +168,7 @@ void Command::execute() {
         }
         // end TODO
       }
+#endif
       std::cerr << std::endl << "\tmain execution" << std::endl;
       // main execution + piping
       if ((pid = fork()) == -1) {
@@ -176,12 +177,14 @@ void Command::execute() {
       } else if (pid == 0) { // child proc
         std::cerr << "\t\tchild proc" << std::endl;
         dup2(ifd, 0);
-        dup2(pipefd[1], 1);
+
+        if (cmd != _simpleCommands.back())
+          dup2(pipefd[1], 1);
 
         close(pipefd[0]);
-        close(stdinfd);
-        close(stdoutfd);
-        close(stderrfd);
+        // close(stdinfd);
+        // close(stdoutfd);
+        // close(stderrfd);
 
         // TODO: is exit() necessary here?
         exit(execvp(argv[0], argv.data()));
@@ -192,9 +195,9 @@ void Command::execute() {
       }
     }
     // restore stdin, stdout, stderr
-    dup2(stdinfd, 0);
-    dup2(stdoutfd, 1);
-    dup2(stderrfd, 2);
+    // dup2(stdinfd, 0);
+    // dup2(stdoutfd, 1);
+    // dup2(stderrfd, 2);
 
 #if 0
     for (auto cmd : _simpleCommands) {
