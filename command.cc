@@ -129,7 +129,9 @@ void Command::execute() {
         std::vector<char*> args(cmd->_arguments.size());
         for (auto arg : cmd->_arguments) args.push_back(arg->data());
         args.push_back(NULL);
-        std::cerr << args[0] << std::endl;
+
+        std::cerr << "in child process, converted " << args[0] << std::endl;
+
         execvp(args[0], args.data());
       }
     }
