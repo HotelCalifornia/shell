@@ -148,7 +148,7 @@ void Command::execute() {
         perror("fatal: creat error file\n");
         exit(2);
       }
-      if (int e2 = dup2(efd, 1); e2 == -1) {
+      if (int e2 = dup2(efd, 2); e2 == -1) {
         perror("fatal: redirect stderr\n");
         exit(2);
       }
