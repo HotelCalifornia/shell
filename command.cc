@@ -131,7 +131,7 @@ void Command::execute() {
 
       // file redirection
       if (cmd == _simpleCommands.back()) { // last command, send output to redirect
-        std::cerrr << "last command" << std::endl;
+        std::cerr << "last command" << std::endl;
         // only need to open output fd once if out and err go to same place
         if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
         else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
