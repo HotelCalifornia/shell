@@ -109,13 +109,13 @@ void Command::execute() {
     // and call exec
     pid_t pid;
 
-    int ifd = 0;
+    // int ifd = 0;
     int ofd = 1;
-    int efd = 2;
+    // int efd = 2;
 
-    int stdinfd = dup(ifd);
+    // int stdinfd = dup(ifd);
     int stdoutfd = dup(ofd);
-    int stderrfd = dup(efd);
+    // int stderrfd = dup(efd);
 
     for (auto cmd : _simpleCommands) {
       pid = fork();
@@ -126,22 +126,27 @@ void Command::execute() {
       }
 
       // only need to open output fd once if out and err go to same place
-      if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
-      else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
-      else if (_errFile) efd = creat(_errFile->c_str(), 0666);
+      // if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
+      /*else*/ if (_outFile) ofd = creat(_outFile->c_str(), 0666);
+      // else if (_errFile) efd = creat(_errFile->c_str(), 0666);
 
-      if (_inFile) ifd = creat(_inFile->c_str(), 0666);
+      // if (_inFile) ifd = creat(_inFile->c_str(), 0666);
 
-      if (int e0 = dup2(ifd, stdinfd); e0 == -1) {
-        perror("fatal: redirect stdin\n");
+      // if (int e0 = dup2(stdinfd, ifd); e0 == -1) {
+      //   perror("fatal: redirect stdin\n");
+      //   exit(2);
+      // }
+      if (ofd < 0) {
+        perror("fatal: creat output file");
         exit(2);
       }
-      if (int e1 = dup2(ofd, stdoutfd); e1 == -1) {
+      if (int e1 = dup2(ofd, 1); e1 == -1) {
         perror("fatal: redirect stdout\n");
       }
-      if (int e2 = dup2(efd, stderrfd); e2 == -1) {
-        perror("fatal: redirect stderr\n");
-      }
+      close(ofd);
+      // if (int e2 = dup2(stderrfd, efd); e2 == -1) {
+      //   perror("fatal: redirect stderr\n");
+      // }
 
 
       // TODO: pipe
@@ -149,7 +154,7 @@ void Command::execute() {
 
       if (pid == 0) {
         // close(stdinfd);
-        // close(stdoutfd);
+        close(stdoutfd);
         // close(stderrfd);
 
         // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
@@ -160,13 +165,13 @@ void Command::execute() {
       }
     }
     // restore stdin, stdout, stderr
-    dup2(0, stdinfd);
-    dup2(1, stdoutfd);
-    dup2(2, stderrfd);
+    // dup2(0, stdinfd);
+    dup2(stdoutfd, 1);
+    // dup2(2, stderrfd);
 
-    close(stdinfd);
+    // close(stdinfd);
     close(stdoutfd);
-    close(stderrfd);
+    // close(stderrfd);
 
     if (_background) std::cout << "[1] " << pid << std::endl;
     if (!_background) waitpid(pid, NULL, 0);
