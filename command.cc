@@ -109,11 +109,11 @@ void Command::execute() {
     // and call exec
     pid_t pid;
 
-    // int ifd = 0;
+    int ifd = 0;
     int ofd = 1;
     int efd = 2;
 
-    // int stdinfd = dup(ifd);
+    int stdinfd = dup(ifd);
     int stdoutfd = dup(ofd);
     int stderrfd = dup(efd);
 
@@ -130,12 +130,18 @@ void Command::execute() {
       else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
       else if (_errFile) efd = creat(_errFile->c_str(), 0666);
 
-      // if (_inFile) ifd = creat(_inFile->c_str(), 0666);
+      if (_inFile) ifd = creat(_inFile->c_str(), 0666);
 
-      // if (int e0 = dup2(stdinfd, ifd); e0 == -1) {
-      //   perror("fatal: redirect stdin\n");
-      //   exit(2);
-      // }
+      // TODO: ????
+      if (ifd < 0) {
+        perror("fatal: creat input file\n");
+        exit(2);
+      }
+      if (int e0 = dup2(stdinfd, ifd); e0 == -1) {
+        perror("fatal: redirect stdin\n");
+        exit(2);
+      }
+      // end TODO
       if (ofd < 0) {
         perror("fatal: creat output file\n");
         exit(2);
@@ -158,7 +164,7 @@ void Command::execute() {
       // int fdpipe[_simpleCommands.size()];
 
       if (pid == 0) {
-        // close(stdinfd);
+        close(stdinfd);
         close(stdoutfd);
         close(stderrfd);
 
@@ -169,6 +175,7 @@ void Command::execute() {
 
         execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
+      dup2(stdinfd, 0);
       dup2(stdoutfd, 1);
       dup2(stderrfd, 2);
     }
