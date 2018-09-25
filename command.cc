@@ -159,7 +159,7 @@ void Command::execute() {
         // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
         std::vector<char*> argv;
         for (auto arg : cmd->_arguments) argv.push_back(arg->data());
-        args.push_back(NULL);
+        argv.push_back(NULL);
 
         execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
