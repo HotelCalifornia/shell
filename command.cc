@@ -169,10 +169,10 @@ void Command::execute() {
 
         execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
+      dup2(stdoutfd, 1);
+      dup2(stderrfd, 2);
     }
     // restore stdin, stdout, stderr
-    dup2(stdoutfd, 1);
-    dup2(stderrfd, 2);
     // dup2(0, stdinfd);
     // dup2(2, stderrfd);
 
