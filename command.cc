@@ -122,8 +122,9 @@ void Command::execute() {
       // TODO: pipe
       // int fdpipe[_simpleCommands.size()];
 
-      std::cerr << pid << std::endl;
+      // std::cerr << pid << std::endl;
       if (pid == 0) {
+        std::cerr << "in child process" << std::endl;
         // convert from (std::string*) to (const* char*)
         std::vector<char*> args(cmd->_arguments.size());
         for (auto arg : cmd->_arguments) args.push_back(arg->data());
@@ -132,7 +133,7 @@ void Command::execute() {
         execvp(args[0], args.data());
       }
     }
-    waitpid(pid, NULL, 0);
+    if (!_background) waitpid(pid, NULL, 0);
     // Clear to prepare for next command
     clear();
 
