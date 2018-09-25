@@ -109,7 +109,7 @@ void Command::execute() {
     // and call exec
     pid_t pid;
 
-    // int ifd = 0;
+    int ifd = 0;
     // int ofd = 1;
     // int efd = 2;
     //
