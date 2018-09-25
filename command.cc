@@ -119,7 +119,7 @@ void Command::execute() {
 
     int pipefd[2];
     for (auto cmd : _simpleCommands) {
-      std::cerr << "executing " << *cmd->_arguments[0] << std::endl;
+      std::cerr << "executing " << *cmd->_arguments[0];
       // special thanks to https://stackoverflow.com/questions/17630247/coding-multiple-pipe-in-c/17631589
       pipe(pipefd);
 
@@ -131,7 +131,7 @@ void Command::execute() {
 
       // file redirection
       if (cmd == _simpleCommands.back()) { // last command, send output to redirect
-        std::cerr << "last command: ";
+        std::cerr << " (last command)";
         // only need to open output fd once if out and err go to same place
         if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
         else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
@@ -154,7 +154,7 @@ void Command::execute() {
           exit(2);
         }
       } else if (cmd == _simpleCommands.front()) { // first command, get input from redirect
-        std::cerr << "first command: ";
+        std::cerr << " (first command)";
         if (_inFile) ifd = creat(_inFile->c_str(), 0666);
 
         // TODO: ????
@@ -168,7 +168,7 @@ void Command::execute() {
         }
         // end TODO
       }
-      std::cerr << "\tmain execution" << std::endl;
+      std::cerr << std::endl << "\tmain execution" << std::endl;
       // main execution + piping
       if ((pid = fork()) == -1) {
         perror("fatal: fork\n");
