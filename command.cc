@@ -6,10 +6,10 @@
  *
  * NOTE: You are responsible for fixing any bugs this code may have!
  *
- * DO NOT PUT THIS PROJECT IN A PUBLIC REPOSITORY LIKE GIT. IF YOU WANT 
- * TO MAKE IT PUBLICALLY AVAILABLE YOU NEED TO REMOVE ANY SKELETON CODE 
+ * DO NOT PUT THIS PROJECT IN A PUBLIC REPOSITORY LIKE GIT. IF YOU WANT
+ * TO MAKE IT PUBLICALLY AVAILABLE YOU NEED TO REMOVE ANY SKELETON CODE
  * AND REWRITE YOUR PROJECT SO IT IMPLEMENTS FUNCTIONALITY DIFFERENT THAN
- * WHAT IS SPECIFIED IN THE HANDOUT. WE OFTEN REUSE PART OF THE PROJECTS FROM  
+ * WHAT IS SPECIFIED IN THE HANDOUT. WE OFTEN REUSE PART OF THE PROJECTS FROM
  * SEMESTER TO SEMESTER AND PUTTING YOUR CODE IN A PUBLIC REPOSITORY
  * MAY FACILITATE ACADEMIC DISHONESTY.
  */
@@ -48,19 +48,15 @@ void Command::clear() {
     // (basically just sets the size to 0)
     _simpleCommands.clear();
 
-    if ( _outFile ) {
-        delete _outFile;
-    }
-    _outFile = NULL;
+    // delete only outfile if outfile and errfile are equivalent, otherwise delete them individually
+    if ((_outFile || _errFile) && _outFile == _errFile) delete _outFile;
+    else if (_outFile) delete _outFile;
+    else if (_errFile) delete _errFile;
 
-    if ( _inFile ) {
-        delete _inFile;
-    }
+    if (_inFile) delete _inFile;
+
     _inFile = NULL;
-
-    if ( _errFile ) {
-        delete _errFile;
-    }
+    _outFile = NULL;
     _errFile = NULL;
 
     _background = false;
