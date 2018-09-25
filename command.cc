@@ -143,7 +143,6 @@ void Command::execute() {
       if (int e1 = dup2(ofd, 1); e1 == -1) {
         perror("fatal: redirect stdout\n");
       }
-      // close(ofd);
       // if (int e2 = dup2(stderrfd, efd); e2 == -1) {
       //   perror("fatal: redirect stderr\n");
       // }
@@ -160,6 +159,7 @@ void Command::execute() {
         // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
         std::vector<char*> argv;
         for (auto arg : cmd->_arguments) argv.push_back(arg->data());
+        args.push_back(NULL);
 
         execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
