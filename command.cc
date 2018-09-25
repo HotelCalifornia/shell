@@ -148,6 +148,10 @@ void Command::execute() {
       // int fdpipe[_simpleCommands.size()];
 
       if (pid == 0) {
+        close(stdinfd);
+        close(stdoutfd);
+        close(stderrfd);
+
         // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
         std::vector<char*> argv;
         for (auto arg : cmd->_arguments) argv.push_back(arg->data());
@@ -155,6 +159,11 @@ void Command::execute() {
         execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
     }
+    // restore stdin, stdout, stderr
+    dup2(stdinfd, 0);
+    dup2(stdoutfd, 1);
+    dup2(stderrfd, 2);
+    
     if (_background) std::cout << "[1] " << pid << std::endl;
     if (!_background) waitpid(pid, NULL, 0);
     // Clear to prepare for next command
