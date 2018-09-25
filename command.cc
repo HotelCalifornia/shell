@@ -113,9 +113,9 @@ void Command::execute() {
     int ofd = 1;
     int efd = 2;
 
-    // int stdin = dup(ifd);
-    // int stdout = dup(ofd);
-    // int stderr = dup(efd);
+    int stdin = dup(ifd);
+    int stdout = dup(ofd);
+    int stderr = dup(efd);
 
     for (auto cmd : _simpleCommands) {
       pid = fork();
@@ -132,12 +132,12 @@ void Command::execute() {
 
       if (_inFile) ifd = creat(_inFile->c_str(), 0666);
 
-      if (int e0 = dup2(0, ofd); e0 == -1) {
-        perror("fatal: redirect stdout\n");
+      if (int e0 = dup2(stdin, ifd); e0 == -1) {
+        perror("fatal: redirect stdin\n");
         exit(2);
       }
-      if (int e1 = dup2(1, ifd); e1 == -1) {
-        perror("fatal: redirect stdin\n");
+      if (int e1 = dup2(1, ofd); e1 == -1) {
+        perror("fatal: redirect stdout\n");
       }
       if (int e2 = dup2(2, efd); e2 == -1) {
         perror("fatal: redirect stderr\n");
