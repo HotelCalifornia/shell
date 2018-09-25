@@ -131,7 +131,7 @@ void Command::execute() {
           args.push_back(arg->data());
         }
         args.push_back(NULL);
-        std::cerr << args.size() << std::endl;
+        std::cerr << args << std::endl;
         for (auto arg : args) std::cerr << arg << ",";
         std::cerr << std::endl;
 
