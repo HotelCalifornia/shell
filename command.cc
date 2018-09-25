@@ -19,7 +19,9 @@
 
 #include <iostream>
 
+#include <fcntl.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -106,17 +108,35 @@ void Command::execute() {
     // Setup i/o redirection
     // and call exec
     pid_t pid;
+    int ofd = 0;
+    int ifd = 1;
+    int efd = 2;
     for (auto cmd : _simpleCommands) {
       pid = fork();
 
       if (pid == -1) {
-        perror("fork\n");
+        perror("fatal: fork\n");
         exit(2);
       }
 
-      // int df_in = dup(0);
-      // int df_out = dup(1);
-      // int df_err = dup(2);
+      // only need to open output fd once if out and err go to same place
+      if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
+      else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
+      else if (_errFile) efd = creat(_errFile->c_str(), 0666);
+
+      if (_inFile) ifd = creat(_inFile->c_str(), 0666);
+
+      if (int e0 = dup2(0, ofd); e0 == -1) {
+        perror("fatal: redirect stdout\n");
+        exit(2);
+      }
+      if (int e1 = dup2(1, ifd); e1 == -1) {
+        perror("fatal: redirect stdin\n");
+      }
+      if (int e2 = dup2(2, efd); e2 == -1) {
+        perror("fatal: redirect stderr\n");
+      }
+
 
       // TODO: pipe
       // int fdpipe[_simpleCommands.size()];
