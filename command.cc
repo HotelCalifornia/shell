@@ -117,6 +117,81 @@ void Command::execute() {
     int stdoutfd = dup(ofd);
     int stderrfd = dup(efd);
 
+    int pipefd[2];
+    for (auto cmd : _simpleCommands) {
+      // special thanks to https://stackoverflow.com/questions/17630247/coding-multiple-pipe-in-c/17631589
+      pipe(pipefd);
+
+      // convert to const* char*
+      // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
+      std::vector<char*> argv;
+      for (auto arg : cmd->_arguments) argv.push_back(arg->data());
+      argv.push_back(NULL);
+
+      // file redirection
+      if (cmd == _simpleCommands.back()) { // last command, send output to redirect
+        // only need to open output fd once if out and err go to same place
+        if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
+        else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
+        else if (_errFile) efd = creat(_errFile->c_str(), 0666);
+
+        if (ofd < 0) {
+          perror("fatal: creat output file\n");
+          exit(2);
+        }
+        if (int e1 = dup2(ofd, 1); e1 == -1) {
+          perror("fatal: redirect stdout\n");
+          exit(2);
+        }
+        if (efd < 0) {
+          perror("fatal: creat error file\n");
+          exit(2);
+        }
+        if (int e2 = dup2(efd, 2); e2 == -1) {
+          perror("fatal: redirect stderr\n");
+          exit(2);
+        }
+      } else if (cmd == _simpleCommands.front()) { // first command, get input from redirect
+        if (_inFile) ifd = creat(_inFile->c_str(), 0666);
+
+        // TODO: ????
+        if (ifd < 0) {
+          perror("fatal: creat input file\n");
+          exit(2);
+        }
+        if (int e0 = dup2(stdinfd, ifd); e0 == -1) {
+          perror("fatal: redirect stdin\n");
+          exit(2);
+        }
+        // end TODO
+      }
+      // main execution + piping
+      if ((pid = fork()) == -1) {
+        perror("fatal: fork\n");
+        exit(2);
+      } else if (pid == 0) { // child proc
+        dup2(ifd, 0);
+        dup2(pipefd[1], 1);
+
+        close(pipefd[0]);
+        close(stdinfd);
+        close(stdoutfd);
+        close(stderrfd);
+
+        // TODO: is exit() necessary here?
+        exit(execvp(argv[0], argv.data()));
+      } else { // parent
+        wait(NULL); // wait for child to finish before moving on
+        close(pipefd[1]);
+        ifd = pipefd[0];
+      }
+    }
+    // restore stdin, stdout, stderr
+    dup2(stdinfd, 0);
+    dup2(stdoutfd, 1);
+    dup2(stderrfd, 2);
+
+#if 0
     for (auto cmd : _simpleCommands) {
       pid = fork();
 
@@ -160,8 +235,14 @@ void Command::execute() {
       }
 
 
-      // TODO: pipe
-      // int fdpipe[_simpleCommands.size()];
+      int fdpipe[2];
+      if (_simpleCommands.size() > 1) {
+        if (pipe(fdpipe) == -1) {
+          perror("fatal: pipe\n");
+          exit(2);
+        }
+        dup2(fdpipe[1], 1);
+      }
 
       if (pid == 0) {
         close(stdinfd);
@@ -182,6 +263,7 @@ void Command::execute() {
     // restore stdin, stdout, stderr
     // dup2(0, stdinfd);
     // dup2(2, stderrfd);
+#endif
 
     if (_background) std::cout << "[1] " << pid << std::endl;
     if (!_background) waitpid(pid, NULL, 0);
