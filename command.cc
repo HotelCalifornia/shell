@@ -124,7 +124,7 @@ void Command::execute() {
 
       // std::cerr << pid << std::endl;
       if (pid == 0) {
-        std::cerr << "in child process" << std::endl;
+        std::cerr << "in child process " << cmd->_arguments[0] << std::endl;
         // convert from (std::string*) to (const* char*)
         std::vector<char*> args(cmd->_arguments.size());
         for (auto arg : cmd->_arguments) args.push_back(arg->data());
