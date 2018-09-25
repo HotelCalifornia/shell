@@ -109,7 +109,6 @@ void Command::execute() {
     for (auto cmd : _simpleCommands) {
       std::cerr << "before fork" << std::endl;
       pid = fork();
-      std::cerr << "after fork" << std::endl;
 
       if (pid == -1) {
         perror("fork\n");
@@ -129,7 +128,7 @@ void Command::execute() {
         std::vector<char*> args(cmd->_arguments.size());
         for (auto arg : cmd->_arguments) args.push_back(arg->data());
         args.push_back(NULL);
-
+        std::cerr << args[0] << std::endl;
         execvp(args[0], args.data());
       }
     }
