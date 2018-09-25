@@ -179,7 +179,7 @@ void Command::execute() {
         close(stderrfd);
 
         // TODO: is exit() necessary here?
-        exit(execvp(argv[0], argv.data()));
+        /*exit(*/execvp(argv[0], argv.data())/*)*/;
       } else { // parent
         wait(NULL); // wait for child to finish before moving on
         close(pipefd[1]);
