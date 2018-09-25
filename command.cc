@@ -163,14 +163,15 @@ void Command::execute() {
 
         execvp(cmd->_arguments[0]->c_str(), argv.data());
       }
+      dup2(stdoutfd, 1);
+      close(stdoutfd);
     }
     // restore stdin, stdout, stderr
     // dup2(0, stdinfd);
-    dup2(stdoutfd, 1);
     // dup2(2, stderrfd);
 
     // close(stdinfd);
-    close(stdoutfd);
+    // close(stdoutfd);
     // close(stderrfd);
 
     if (_background) std::cout << "[1] " << pid << std::endl;
