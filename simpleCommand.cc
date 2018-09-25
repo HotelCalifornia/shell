@@ -24,7 +24,7 @@ void SimpleCommand::insertArgument( std::string * argument ) {
 // Print out the simple command
 void SimpleCommand::print() {
   for (auto & arg : _arguments) {
-    std::cout << "\"" << arg << "\" \t";
+    std::cout << "\"" << *arg << "\" \t";
   }
   // effectively the same as printf("\n\n");
   std::cout << std::endl;
