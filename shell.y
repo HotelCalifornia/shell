@@ -42,13 +42,6 @@ int yylex();
 
 %%
 
-logout:
-  EXIT {
-    fprintf(stdout, "logout\n");
-    exit(0);
-  }
-  ;
-
 goal:
   commands
   ;
@@ -161,6 +154,13 @@ background_opt:
     Shell::_currentCommand._background = true;
   }
   | %empty /* empty */
+  ;
+
+logout:
+  EXIT {
+    fprintf(stdout, "logout\n");
+    exit(0);
+  }
   ;
 
 %%
