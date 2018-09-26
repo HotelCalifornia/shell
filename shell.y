@@ -102,7 +102,7 @@ iomodifier_opt:
     Shell::_currentCommand._inFile = $2;
   }
   | GREATGREAT WORD { /* redirect stdout and append */
-    Shell::_currentCommand._append = true;
+    Shell::_currentCommand._s_append = true;
     Shell::_currentCommand._outFile = $2;
   }
   | ERRGREAT WORD { /* redirect only stderr */
