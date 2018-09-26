@@ -49,6 +49,10 @@ goal:
 commands:
   command_line
   | commands command_line
+  | EXIT {
+    fprintf(stdout, "logout\n");
+    exit(0);
+  }
   ;
 
 command_line:
@@ -75,10 +79,6 @@ command_word:
   WORD {
     Command::_currentSimpleCommand = new SimpleCommand();
     Command::_currentSimpleCommand->insertArgument( $1 );
-  }
-  | EXIT {
-    fprintf(stdout, "logout\n");
-    exit(0);
   }
   ;
 
