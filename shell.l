@@ -36,6 +36,12 @@ void myunputc(int c) {
 ">>" {
   return GREATGREAT;
 }
+"2>" {
+  return ERRGREAT;
+}
+"2>>" {
+  return ERRGREATGREAT;
+}
 ">&" {
   return GREATAMP;
 }

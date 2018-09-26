@@ -28,7 +28,7 @@
 }
 
 %token <cpp_string> WORD
-%token NOTOKEN GREAT LESS NEWLINE AMP GREATGREAT GREATAMP GREATGREATAMP PIPE
+%token NOTOKEN GREAT LESS NEWLINE AMP GREATGREAT ERRGREAT GREATAMP  ERRGREATGREAT GREATGREATAMP PIPE
 
 %{
 //#define yylex yylex
@@ -53,7 +53,6 @@ commands:
 
 command_line:
   pipe_list iomodifier_list background_opt NEWLINE {
-    printf("   Yacc: Execute command\n");
     Shell::_currentCommand.execute();
   }
   | NEWLINE
@@ -73,8 +72,7 @@ command_and_args:
   ;
 
 command_word:
-  WORD {
-    printf("   Yacc: insert command \"%s\"\n", $1->c_str());
+  WORD {=
     Command::_currentSimpleCommand = new SimpleCommand();
     Command::_currentSimpleCommand->insertArgument( $1 );
   }
@@ -87,7 +85,6 @@ argument_list:
 
 argument:
   WORD {
-    printf("   Yacc: insert argument \"%s\"\n", $1->c_str());
     Command::_currentSimpleCommand->insertArgument( $1 );\
   }
   ;
@@ -99,45 +96,37 @@ iomodifier_list:
 
 iomodifier_opt:
   GREAT WORD { /* standard output redirection */
-    printf("   Yacc: insert output \"%s\"\n", $2->c_str());
     Shell::_currentCommand._outFile = $2;
   }
   | LESS WORD { /* standard input redirection */
-    printf("   Yacc: insert input \"%s\"\n", $2->c_str());
     Shell::_currentCommand._inFile = $2;
   }
   | GREATGREAT WORD { /* redirect stdout and append */
-    printf("   Yacc: insert output (append) \"%s\"\n", $2->c_str());
+    Shell::_currentCommand._append = true;
     Shell::_currentCommand._outFile = $2;
   }
+  | ERRGREAT WORD { /* redirect only stderr */
+    Shell::_currentCommand._errFile = $2;
+  }
+  | ERRGREATGREAT WORD { /* redirect only stderr and append */
+    Shell:_currentCommand._append = true;
+    Shell:_currentCommand._errFile = $2;
+  }
   | GREATAMP WORD { /* redirect stdout and stderr */
-    printf("   Yacc: insert output (and err) \"%s\"\n", $2->c_str());
     Shell::_currentCommand._outFile = Shell::_currentCommand._errFile = $2;
   }
   | GREATGREATAMP WORD { /* redirect stdout and stderr and append */
-    printf("   Yacc: insert output (and err) (append) \"%s\"\n", $2->c_str());
+    Shell::_currentCommand._append = true;
     Shell::_currentCommand._outFile = Shell::_currentCommand._errFile = $2;
   }
   ;
 
 background_opt:
   AMP {
-    printf("   Yacc: backgrounding\n");
     Shell::_currentCommand._background = true;
   }
   | %empty /* empty */
   ;
-
-/* command: simple_command;
-
-simple_command:
-  command_and_args iomodifier_list NEWLINE {
-    printf("   Yacc: Execute simple command\n");
-    Shell::_currentCommand.execute();
-  }
-  | NEWLINE
-  | error NEWLINE { yyerrok; }
-  ; */
 
 %%
 

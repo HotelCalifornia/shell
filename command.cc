@@ -110,16 +110,15 @@ void Command::execute() {
     pid_t pid;
 
     int ifd = 0;
-    // int ofd = 1;
-    // int efd = 2;
-    //
-    // int stdinfd = dup(ifd);
-    // int stdoutfd = dup(ofd);
-    // int stderrfd = dup(efd);
+    int ofd = 1;
+    int efd = 2;
+
+    int stdinfd = dup(ifd);
+    int stdoutfd = dup(ofd);
+    int stderrfd = dup(efd);
 
     int pipefd[2];
     for (auto cmd : _simpleCommands) {
-      // std::cerr << "executing " << *cmd->_arguments[0];
       // special thanks to https://stackoverflow.com/questions/17630247/coding-multiple-pipe-in-c/17631589
       pipe(pipefd);
 
@@ -128,76 +127,66 @@ void Command::execute() {
       std::vector<char*> argv;
       for (auto arg : cmd->_arguments) argv.push_back(arg->data());
       argv.push_back(NULL);
-#if 0
-      // file redirection
-      if (cmd == _simpleCommands.back()) { // last command, send output to redirect
-        std::cerr << " (last command)";
-        // only need to open output fd once if out and err go to same place
-        if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
-        else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
-        else if (_errFile) efd = creat(_errFile->c_str(), 0666);
 
-        if (ofd < 0) {
-          perror("fatal: creat output file\n");
-          exit(2);
-        }
-        if (int e1 = dup2(ofd, 1); e1 == -1) {
-          perror("fatal: redirect stdout\n");
-          exit(2);
-        }
-        if (efd < 0) {
-          perror("fatal: creat error file\n");
-          exit(2);
-        }
-        if (int e2 = dup2(efd, 2); e2 == -1) {
-          perror("fatal: redirect stderr\n");
-          exit(2);
-        }
-      } else if (cmd == _simpleCommands.front()) { // first command, get input from redirect
-        std::cerr << " (first command)";
+      // file redirection
+      if (cmd == _simpleCommands.front()) { // first command, open input/error redirect file if necessary
         if (_inFile) ifd = creat(_inFile->c_str(), 0666);
+        if (_errFile) efd = creat(_errFile->c_str(), 0666);
 
         // TODO: ????
         if (ifd < 0) {
           perror("fatal: creat input file\n");
           exit(2);
         }
-        if (int e0 = dup2(stdinfd, ifd); e0 == -1) {
-          perror("fatal: redirect stdin\n");
+        // end TODO
+        if (efd < 0) {
+          perror("fatal: creat error file\n");
           exit(2);
         }
-        // end TODO
       }
-#endif
-      // std::cerr << std::endl << "\tmain execution" << std::endl;
+      // NOTE: separate clauses because sometimes there's only one cmd ;-)
+      if (cmd == _simpleCommands.back()) { // last command, send output to redirect
+        // only need to open output fd once if out and err go to same place (err already initialized)
+        if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd;
+        else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
+
+        if (ofd < 0) {
+          perror("fatal: creat output file\n");
+          exit(2);
+        }
+      }
+
       // main execution + piping
       if ((pid = fork()) == -1) {
         perror("fatal: fork\n");
         exit(2);
       } else if (pid == 0) { // child proc
-        // std::cerr << "\t\tchild proc" << std::endl;
+        // stdin from previous segment of pipe
         dup2(ifd, 0);
+        // stderr to specified fd
+        dup2(efd, 2);
 
+        // if current command is not the last one, direct output to next segment
         if (cmd != _simpleCommands.back())
           dup2(pipefd[1], 1);
+        else // otherwise (last command) send output to specified fd
+          dup2(ofd, 1);
 
-        close(pipefd[0]);
-        // close(stdinfd);
-        // close(stdoutfd);
-        // close(stderrfd);
+        close(pipefd[0]); // close input
+
 
         // TODO: is exit() necessary here?
         exit(execvp(argv[0], argv.data()));
       } else { // parent
         wait(NULL); // wait for child to finish before moving on
-        close(pipefd[1]);
+        close(pipefd[1]); // close segment output
         ifd = pipefd[0];
       }
     }
     // restore stdin, stdout, stderr
-    // dup2(stdinfd, 0);
-    // dup2(stdoutfd, 1);
-    // dup2(stderrfd, 2);
+    dup2(stdinfd, 0);
+    dup2(stdoutfd, 1);
+    dup2(stderrfd, 2);
 
 #if 0
     for (auto cmd : _simpleCommands) {
