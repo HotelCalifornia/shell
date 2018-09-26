@@ -111,7 +111,7 @@ if [[ $opt == "p2" || $opt == "ALL" ]]; then
     section_start "Builtin Functions"               #4
     clear_vars
     run_test test_printenv              1
-    run_test test_setenv1               .5
+    run_test test_setenv                .5
     run_test test_unsetenv              .5
     run_test test_source                2
     grade5=$grade

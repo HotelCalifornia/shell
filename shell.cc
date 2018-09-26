@@ -1,5 +1,7 @@
 #include <cstdio>
 
+#include <unistd.h>
+
 #include "shell.hh"
 
 int yyparse(void);
@@ -10,7 +12,7 @@ void Shell::prompt() {
 }
 
 int main() {
-  Shell::prompt();
+  if (isatty(0)) Shell::prompt();
   yyparse();
 }
 
