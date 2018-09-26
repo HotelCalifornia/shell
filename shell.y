@@ -89,6 +89,11 @@ argument_list:
 
 argument:
   WORD {
+    /* remove quotes from compound argument */
+    if ((*$1)[0] == '"') {
+      $1->erase($1->end() - 1);
+      $1->erase($1->begin());
+    }
     Command::_currentSimpleCommand->insertArgument( $1 );\
   }
   ;
