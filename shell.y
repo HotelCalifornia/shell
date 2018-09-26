@@ -28,7 +28,7 @@
 }
 
 %token <cpp_string> WORD
-%token NOTOKEN GREAT LESS NEWLINE AMP GREATGREAT ERRGREAT GREATAMP  ERRGREATGREAT GREATGREATAMP PIPE
+%token NOTOKEN EXIT GREAT LESS NEWLINE AMP GREATGREAT ERRGREAT GREATAMP ERRGREATGREAT GREATGREATAMP PIPE
 
 %{
 //#define yylex yylex
@@ -41,6 +41,12 @@ int yylex();
 %}
 
 %%
+
+logout:
+  EXIT {
+    fprintf(stdout, "logout\n");
+    exit(0);
+  }
 
 goal:
   commands
