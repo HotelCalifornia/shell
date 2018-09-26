@@ -152,7 +152,7 @@ void Command::execute() {
         int flags = O_CREAT | O_WRONLY;
         flags |= _s_append ? O_APPEND : O_TRUNC;
         if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd;
-        else if (_outFile) ofd = open(_outFile->c_str(), oflags, 0666);
+        else if (_outFile) ofd = open(_outFile->c_str(), flags, 0666);
 
         if (ofd < 0) {
           perror("fatal: creat output file\n");
