@@ -97,21 +97,21 @@ iomodifier_list:
 iomodifier_opt:
   GREAT WORD { /* standard output redirection */
     if (Shell::_currentCommand._outFile) {
-      perror("Ambiguous output redirect\n");
+      perror("Ambiguous output redirect.\n");
       exit(-1);
     }
     Shell::_currentCommand._outFile = $2;
   }
   | LESS WORD { /* standard input redirection */
     if (Shell::_currentCommand._inFile) {
-      perror("Ambiguous input redirect\n");
+      perror("Ambiguous input redirect.\n");
       exit(-1);
     }
     Shell::_currentCommand._inFile = $2;
   }
   | GREATGREAT WORD { /* redirect stdout and append */
     if (Shell::_currentCommand._outFile) {
-      perror("Ambiguous output redirect\n");
+      perror("Ambiguous output redirect.\n");
       exit(-1);
     }
     Shell::_currentCommand._s_append = true;
@@ -119,14 +119,14 @@ iomodifier_opt:
   }
   | ERRGREAT WORD { /* redirect only stderr */
     if (Shell::_currentCommand._errFile) {
-      perror("Ambiguous error redirect\n");
+      perror("Ambiguous error redirect.\n");
       exit(-1);
     }
     Shell::_currentCommand._errFile = $2;
   }
   | ERRGREATGREAT WORD { /* redirect only stderr and append */
     if (Shell::_currentCommand._errFile) {
-      perror("Ambiguous error redirect\n");
+      perror("Ambiguous error redirect.\n");
       exit(-1);
     }
     Shell::_currentCommand._e_append = true;
@@ -134,14 +134,14 @@ iomodifier_opt:
   }
   | GREATAMP WORD { /* redirect stdout and stderr */
     if (Shell::_currentCommand._outFile || Shell::_currentCommand._errFile) {
-      perror("Ambiguous redirect\n");
+      perror("Ambiguous redirect.\n");
       exit(-1);
     }
     Shell::_currentCommand._outFile = Shell::_currentCommand._errFile = $2;
   }
   | GREATGREATAMP WORD { /* redirect stdout and stderr and append */
     if (Shell::_currentCommand._outFile || Shell::_currentCommand._errFile) {
-      perror("Ambiguous redirect\n");
+      perror("Ambiguous redirect.\n");
       exit(-1);
     }
     Shell::_currentCommand._s_append = Shell::_currentCommand._e_append = true;
