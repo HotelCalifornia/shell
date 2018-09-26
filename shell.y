@@ -76,6 +76,10 @@ command_word:
     Command::_currentSimpleCommand = new SimpleCommand();
     Command::_currentSimpleCommand->insertArgument( $1 );
   }
+  | EXIT {
+    fprintf(stdout, "logout\n");
+    exit(0);
+  }
   ;
 
 argument_list:
@@ -154,13 +158,6 @@ background_opt:
     Shell::_currentCommand._background = true;
   }
   | %empty /* empty */
-  ;
-
-logout:
-  EXIT {
-    fprintf(stdout, "logout\n");
-    exit(0);
-  }
   ;
 
 %%
