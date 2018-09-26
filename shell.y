@@ -72,7 +72,7 @@ command_and_args:
   ;
 
 command_word:
-  WORD {=
+  WORD {
     Command::_currentSimpleCommand = new SimpleCommand();
     Command::_currentSimpleCommand->insertArgument( $1 );
   }
