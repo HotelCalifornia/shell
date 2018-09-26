@@ -9,7 +9,7 @@ CCFLAGS= -g -std=c++17
 WARNFLAGS= -Wall -Wextra -pedantic
 
 LEX=lex -l
-YACC=yacc -y -d -t --verbose --debug
+YACC=yacc -y -d -t --debug
 
 EDIT_MODE_ON=
 
