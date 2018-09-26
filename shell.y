@@ -96,26 +96,54 @@ iomodifier_list:
 
 iomodifier_opt:
   GREAT WORD { /* standard output redirection */
+    if (Shell::_currentCommand._outFile) {
+      perror("Ambiguous redirect\n");
+      exit(-1);
+    }
     Shell::_currentCommand._outFile = $2;
   }
   | LESS WORD { /* standard input redirection */
+    if (Shell::_currentCommand._inFile) {
+      perror("Ambiguous redirect\n");
+      exit(-1);
+    }
     Shell::_currentCommand._inFile = $2;
   }
   | GREATGREAT WORD { /* redirect stdout and append */
+    if (Shell::_currentCommand._outFile) {
+      perror("Ambiguous redirect\n");
+      exit(-1);
+    }
     Shell::_currentCommand._s_append = true;
     Shell::_currentCommand._outFile = $2;
   }
   | ERRGREAT WORD { /* redirect only stderr */
+    if (Shell::_currentCommand._errFile) {
+      perror("Ambiguous redirect\n");
+      exit(-1);
+    }
     Shell::_currentCommand._errFile = $2;
   }
   | ERRGREATGREAT WORD { /* redirect only stderr and append */
+    if (Shell::_currentCommand._errFile) {
+      perror("Ambiguous redirect\n");
+      exit(-1);
+    }
     Shell::_currentCommand._e_append = true;
     Shell::_currentCommand._errFile = $2;
   }
   | GREATAMP WORD { /* redirect stdout and stderr */
+    if (Shell::_currentCommand._outFile || Shell::_currentCommand._errFile) {
+      perror("Ambiguous redirect\n");
+      exit(-1);
+    }
     Shell::_currentCommand._outFile = Shell::_currentCommand._errFile = $2;
   }
   | GREATGREATAMP WORD { /* redirect stdout and stderr and append */
+    if (Shell::_currentCommand._outFile || Shell::_currentCommand._errFile) {
+      perror("Ambiguous redirect\n");
+      exit(-1);
+    }
     Shell::_currentCommand._s_append = Shell::_currentCommand._e_append = true;
     Shell::_currentCommand._outFile = Shell::_currentCommand._errFile = $2;
   }
