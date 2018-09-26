@@ -30,7 +30,11 @@ void myunputc(int c) {
   /* Discard spaces and tabs */
 }
 
-"exit"|\04 {
+"exit" {
+  return EXIT;
+}
+
+[\04] {
   return EXIT;
 }
 
