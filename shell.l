@@ -34,10 +34,6 @@ void myunputc(int c) {
   return EXIT;
 }
 
-[\04] {
-  return EXIT;
-}
-
 ">" {
   return GREAT;
 }
