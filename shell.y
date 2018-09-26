@@ -109,14 +109,14 @@ iomodifier_opt:
     Shell::_currentCommand._errFile = $2;
   }
   | ERRGREATGREAT WORD { /* redirect only stderr and append */
-    Shell::_currentCommand._append = true;
+    Shell::_currentCommand._e_append = true;
     Shell::_currentCommand._errFile = $2;
   }
   | GREATAMP WORD { /* redirect stdout and stderr */
     Shell::_currentCommand._outFile = Shell::_currentCommand._errFile = $2;
   }
   | GREATGREATAMP WORD { /* redirect stdout and stderr and append */
-    Shell::_currentCommand._append = true;
+    Shell::_currentCommand._s_append = Shell::_currentCommand._e_append = true;
     Shell::_currentCommand._outFile = Shell::_currentCommand._errFile = $2;
   }
   ;

@@ -10,7 +10,8 @@ struct Command {
   std::string * _outFile;
   std::string * _inFile;
   std::string * _errFile;
-  bool _append;
+  bool _s_append;
+  bool _e_append;
   bool _background;
 
   Command();

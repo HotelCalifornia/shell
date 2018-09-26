@@ -131,7 +131,9 @@ void Command::execute() {
       // file redirection
       if (cmd == _simpleCommands.front()) { // first command, open input/error redirect file if necessary
         if (_inFile) ifd = creat(_inFile->c_str(), 0666);
-        if (_errFile) efd = creat(_errFile->c_str(), 0666);
+        int eflags = O_CREAT | O_WRONLY;
+        eflags |= _e_append ? O_APPEND : O_TRUNC;
+        if (_errFile) efd = open(_errFile->c_str(), flags, 0666);
 
         // TODO: ????
         if (ifd < 0) {
@@ -147,8 +149,10 @@ void Command::execute() {
       // NOTE: separate clauses because sometimes there's only one cmd ;-)
       if (cmd == _simpleCommands.back()) { // last command, send output to redirect
         // only need to open output fd once if out and err go to same place (err already initialized)
+        int oflags = O_CREAT | O_WRONLY;
+        oflags |= _s_append ? O_APPEND : O_TRUNC;
         if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd;
-        else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
+        else if (_outFile) ofd = open(_outFile->c_str(), oflags, 0666);
 
         if (ofd < 0) {
           perror("fatal: creat output file\n");
