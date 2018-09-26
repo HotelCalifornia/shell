@@ -47,6 +47,7 @@ logout:
     fprintf(stdout, "logout\n");
     exit(0);
   }
+  ;
 
 goal:
   commands
