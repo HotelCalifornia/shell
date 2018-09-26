@@ -97,7 +97,7 @@ iomodifier_list:
 iomodifier_opt:
   GREAT WORD { /* standard output redirection */
     if (Shell::_currentCommand._outFile) {
-      perror("Ambiguous output redirect.\n");
+      yyerror("Ambiguous output redirect.\n");
       exit(0);
     }
     Shell::_currentCommand._outFile = $2;
