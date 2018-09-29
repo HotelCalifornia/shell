@@ -179,7 +179,7 @@ void Command::execute() {
         // TODO: is exit() necessary here?
         exit(execvp(argv[0], argv.data()));
       } else { // parent
-        // wait(NULL); // wait for child to finish before moving on
+        wait(NULL); // wait for child to finish before moving on
         close(pipefd[1]); // close segment output
         ifd = pipefd[0];
       }
