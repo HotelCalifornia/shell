@@ -1,10 +1,12 @@
 #!/bin/bash
 
+rm -rf bgfile
+
 echo -e "\033[1;4;93m\tBackground\033[0m"
 input_str=$'sleep 5 &\ntouch bgfile'
 ../shell <<< "$input_str" > /dev/null &
 
-sleep 1
+sleep 7
 
 if [ ! -f bgfile ]; then
   exit -1

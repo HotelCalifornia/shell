@@ -6,7 +6,7 @@ input_str=$'setenv aaa pppp\nprintenv\nunsetenv aaa\nprintenv'
 
 # search the output of the command for the number of occurrences of 
 # the string "aaa". There should only be one occurrence
-res=`grep -c aaa= < <(../shell <<< "$input_str" 2>&1)`
+res=`grep -c aaa= <(../shell <<< "$input_str" 2>&1)`
 if [ $res -ne 1 ]
 then
     exit -1

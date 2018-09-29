@@ -6,9 +6,9 @@ echo -e "\033[1;4;93mTest_zombie: Zombie Cleanup\033[0m"
 
 before=`/bin/ps -u $myname | grep -c defunc`
 input_str=$'ls &\nls &\nls &\nls &\nls &\nls &\nls &\nsleep 5'
-../shell <<< "$shell-in" > shell-out &
+../shell <<< "$input_str" > shell-out &
 
-sleep 1
+sleep 4
 
 grep test shell-out > out2 2>&1
 if [ $? -ne 0 ]; then

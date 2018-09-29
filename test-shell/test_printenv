@@ -1,22 +1,13 @@
 #!/bin/bash
 
-rm -f sh-out shell-out
-
 echo -e "\033[1;4;93mTest_printenv: Environment - Print Environment Variables\033[0m"
-echo "/usr/bin/printenv | grep PATH" > sh-in
 
-#Make sure that printenv is a built in command
-(
-PATH=/bin
-export PATH
-echo "printenv | grep PATH" > shell-in
-)
+sh_in=$'/usr/bin/printenv | grep BVAR'
+shell_in=$'printenv | grep BVAR'
 
-../shell < shell-in > shell-out
-/bin/sh < sh-in > sh-out
+# Make another environment variable that both shell processes inherit
+BVAR="WeChangedItForFinalGradingAndMadeItLonger"
+export BVAR
 
-sort shell-out -o shell-out
-sort sh-out -o sh-out
-
-diff shell-out sh-out
+diff <(/bin/sh <<< "$sh_in" 2>&1) <(PATH=/bin ../shell <<< "$shell_in" 2>&1)
 exit $?

@@ -1,17 +1,12 @@
 #!/bin/bash
 
-rm -f sh-out shell-out shell-in sh-in
-
 echo -e "\033[1;4;93mTest_subshell: test subshell\033[0m"
 
+rm -f file-list-1 file-list-2
+touch file-list-1 file-list-2
 
-echo "ls test3* > file-list " > shell-in
-echo 'ls -al $(cat file-list) ' >> shell-in
-../shell < shell-in > shell-out
+sh_in=$'ls . >> file-list-1\n ls -a $(cat file-list-1)'
+shell_in=$'ls . >> file-list-2\nls -a $(cat file-list-2)'
 
-echo "ls test3* > file-list" > sh-in
-echo 'ls -al $(cat file-list) ' >> sh-in
-/bin/sh < sh-in > sh-out
-
-diff sh-out shell-out > /dev/null 2>&1
+diff <(/bin/sh <<< "$sh_in" 2>&1) <(../shell <<< "$shell_in" 2>&1)
 exit $?

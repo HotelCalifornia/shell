@@ -111,7 +111,7 @@ if [[ $opt == "p2" || $opt == "ALL" ]]; then
     section_start "Builtin Functions"               #4
     clear_vars
     run_test test_printenv              1
-    run_test test_setenv                .5
+    run_test test_setenv		.5
     run_test test_unsetenv              .5
     run_test test_source                2
     grade5=$grade
@@ -198,14 +198,14 @@ fi
 ############################
 
 if [[ $opt == "ALL" ]]; then
-    total=`expr $grade1 + $grade2 + $grade3 + $grade4 + $grade5 + \
-        $grade6 + $grade7 + $grade8 + $grade9 + $grade10 + $grade11 + $grade12`
+    total=`echo "$grade1 + $grade2 + $grade3 + $grade4 + $grade5 + \
+        $grade6 + $grade7 + $grade8 + $grade9 + $grade10 + $grade11 + $grade12" | bc`
 elif [[ $opt == "p1" ]]; then
-    total=`expr $grade1 + $grade2 + $grade3`
+    total=`echo "$grade1 + $grade2 + $grade3" | bc`
 elif [[ $opt == "p2" ]]; then
-    total=`expr $grade4 + $grade5 + $grade6 + $grade7 + $grade8`
+    total=`echo "$grade4 + $grade5 + $grade6 + $grade7 + $grade8" | bc`
 else # must be p3
-    total=`expr $grade9 + $grade10 + $grade11 + $grade12`
+    total=`echo "$grade9 + $grade10 + $grade11 + $grade12" | bc`
 fi
 
 #########################
