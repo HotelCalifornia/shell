@@ -164,7 +164,7 @@ void Command::execute() {
         exit(2);
       } else if (pid == 0) { // child proc
         // stdin from previous segment of pipe
-        dup2(ifd, STDOUT_FILENO);
+        dup2(ifd, STDIN_FILENO);
         // stderr to specified fd
         dup2(efd, STDERR_FILENO);
 
@@ -179,7 +179,7 @@ void Command::execute() {
         // TODO: is exit() necessary here?
         exit(execvp(argv[0], argv.data()));
       } else { // parent
-        wait(NULL); // wait for child to finish before moving on
+        // wait(NULL); // wait for child to finish before moving on
         close(pipefd[1]); // close segment output
         ifd = pipefd[0];
       }
