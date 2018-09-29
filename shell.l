@@ -70,7 +70,7 @@ void myunputc(int c) {
   return WORD;
 }
 
-\".*\" {
+\"[^"]\" {
   yylval.cpp_string = new std::string(yytext);
   return WORD;
 }
