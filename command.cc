@@ -130,7 +130,7 @@ void Command::execute() {
 
       // file redirection
       if (cmd == _simpleCommands.front()) { // first command, open input/error redirect file if necessary
-        if (_inFile) ifd = open(_inFile->c_str(), O_RDONLY, 0666);
+        if (_inFile) ifd = open(_inFile->c_str(), O_RDONLY);
         int flags = O_CREAT | O_WRONLY;
         flags |= _e_append ? O_APPEND : O_TRUNC;
         if (_errFile) efd = open(_errFile->c_str(), flags, 0666);
