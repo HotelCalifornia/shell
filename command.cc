@@ -130,17 +130,15 @@ void Command::execute() {
 
       // file redirection
       if (cmd == _simpleCommands.front()) { // first command, open input/error redirect file if necessary
-        if (_inFile) ifd = creat(_inFile->c_str(), 0666);
+        if (_inFile) ifd = open(_inFile->c_str(), O_RDONLY, 0666);
         int flags = O_CREAT | O_WRONLY;
         flags |= _e_append ? O_APPEND : O_TRUNC;
         if (_errFile) efd = open(_errFile->c_str(), flags, 0666);
 
-        // TODO: ????
         if (ifd < 0) {
-          perror("fatal: creat input file\n");
+          perror("input: bad file dsecriptor\n");
           exit(2);
         }
-        // end TODO
         if (efd < 0) {
           perror("fatal: creat error file\n");
           exit(2);
