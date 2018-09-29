@@ -109,9 +109,9 @@ void Command::execute() {
     // and call exec
     pid_t pid;
 
-    int ifd = 0;
-    int ofd = 1;
-    int efd = 2;
+    int ifd = STDIN_FILENO;
+    int ofd = STDOUT_FILENO;
+    int efd = STDERR_FILENO;
 
     int stdinfd = dup(ifd);
     int stdoutfd = dup(ofd);
@@ -136,7 +136,7 @@ void Command::execute() {
         if (_errFile) efd = open(_errFile->c_str(), flags, 0666);
 
         if (ifd < 0) {
-          perror("input: bad file dsecriptor\n");
+          perror("input: bad file descriptor\n");
           exit(2);
         }
         if (efd < 0) {
@@ -164,18 +164,17 @@ void Command::execute() {
         exit(2);
       } else if (pid == 0) { // child proc
         // stdin from previous segment of pipe
-        dup2(ifd, 0);
+        dup2(ifd, STDOUT_FILENO);
         // stderr to specified fd
-        dup2(efd, 2);
+        dup2(efd, STDERR_FILENO);
 
         // if current command is not the last one, direct output to next segment
         if (cmd != _simpleCommands.back())
-          dup2(pipefd[1], 1);
+          dup2(pipefd[1], STDOUT_FILENO);
         else // otherwise (last command) send output to specified fd
-          dup2(ofd, 1);
+          dup2(ofd, STDOUT_FILENO);
 
         close(pipefd[0]); // close input
-
 
         // TODO: is exit() necessary here?
         exit(execvp(argv[0], argv.data()));
@@ -186,9 +185,9 @@ void Command::execute() {
       }
     }
     // restore stdin, stdout, stderr
-    dup2(stdinfd, 0);
-    dup2(stdoutfd, 1);
-    dup2(stderrfd, 2);
+    dup2(stdinfd, STDIN_FILENO);
+    dup2(stdoutfd, STDOUT_FILENO);
+    dup2(stderrfd, STDERR_FILENO);
 
 #if 0
     for (auto cmd : _simpleCommands) {
