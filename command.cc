@@ -30,6 +30,8 @@
 #include "command.hh"
 #include "shell.hh"
 
+extern char** environ;
+
 extern "C" void handle_chld(int) {
   // special thanks to https://stackoverflow.com/a/2378036/3681958
   pid_t p;
@@ -38,8 +40,6 @@ extern "C" void handle_chld(int) {
   while ((p = waitpid(-1, &status, WNOHANG)) != -1) {
     std::cout << "[" << p << "]" << " exited with code " << status << std::endl;
   }
-  printf("[chld] ");
-  Shell::prompt();
 }
 
 Command::Command() {
@@ -125,7 +125,10 @@ void Command::execute() {
     return;
   } else if (tmpCmd == "printenv") {
     // pass
-    Shell::prompt();
+    char* e;
+    while ((e = *environ++)) {
+      std::cout << e << std::endl;
+    }
     return;
   }
 
