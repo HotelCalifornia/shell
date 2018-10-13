@@ -4,6 +4,8 @@
 
 #include "shell.hh"
 
+#include "y.tab.hh"
+
 int yyparse(void);
 
 void Shell::prompt() {
