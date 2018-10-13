@@ -12,6 +12,7 @@ void Shell::prompt() {
 }
 
 int main() {
+  yydebug = 1;
   if (isatty(0)) Shell::prompt();
   yyparse();
 }
