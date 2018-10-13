@@ -243,8 +243,8 @@ void Command::execute() {
   // Clear to prepare for next command
   clear();
 
-  // Print new prompt if stdin is a tty
-  if (isatty(0)) Shell::prompt();
+  // Print new prompt
+  Shell::prompt();
 }
 
 SimpleCommand * Command::_currentSimpleCommand;
