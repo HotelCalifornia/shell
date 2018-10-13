@@ -124,13 +124,15 @@ void Command::execute() {
   } else if (tmpCmd == "cd") {
     // pass
     std::cout << "cd" << std::endl;
-    goto end;
+    Shell::prompt();
+    return;
   } else if (tmpCmd == "printenv") {
     // pass
-    goto end;
+    Shell::prompt();
+    return;
   }
 
-  { // enclosing scope for other command execution
+  // { // enclosing scope for other command execution
   pid_t pid;
 
   int ifd = STDIN_FILENO;
@@ -218,9 +220,9 @@ void Command::execute() {
   if (!_background) waitpid(pid, NULL, 0);
   // Clear to prepare for next command
   clear();
-  } // end execution scope
+  // } // end execution scope
   // Print new prompt if stdin is a tty
-  end: if (isatty(0)) Shell::prompt();
+  /* end: */ if (isatty(0)) Shell::prompt();
 }
 
 SimpleCommand * Command::_currentSimpleCommand;
