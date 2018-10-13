@@ -42,6 +42,7 @@ extern "C" void handle_chld(int) {
 
   while ((p = waitpid(-1, &status, WNOHANG)) != -1) {
     std::cout << "[" << p << "]" << " exited with code " << status << std::endl;
+    exit(status);
   }
 }
 
