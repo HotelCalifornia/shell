@@ -13,13 +13,15 @@
  * SEMESTER TO SEMESTER AND PUTTING YOUR CODE IN A PUBLIC REPOSITORY
  * MAY FACILITATE ACADEMIC DISHONESTY.
  */
-
+#define _XOPEN_SOURCE
 #include <cstdio>
 #include <cstdlib>
 
 #include <iostream>
 
 #include <fcntl.h>
+#include <signal.h>
+#include <string.h> // strsignal
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -28,6 +30,9 @@
 #include "command.hh"
 #include "shell.hh"
 
+extern "C" void handle_int(int sig) {
+  fprintf(stderr, "\nreceived signal %d (%s)", sig, strsignal(sig));
+}
 
 Command::Command() {
     // Initialize a new vector of Simple Commands
@@ -37,6 +42,16 @@ Command::Command() {
     _inFile = NULL;
     _errFile = NULL;
     _background = false;
+
+    // interrupt handler
+    struct sigaction sa;
+    sa.sa_handler = handle_int;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    if (sigaction(SIGINT, &sa, NULL)) {
+      perror(strerror(errno));
+      exit(-1);
+    }
 }
 
 void Command::insertSimpleCommand( SimpleCommand * simpleCommand ) {
