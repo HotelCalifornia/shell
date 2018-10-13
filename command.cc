@@ -33,6 +33,10 @@
 #define HANDLE_ERRNO \
   std::cerr << "error: " << strerror(errno) << std::endl;
 
+#define CLEAR_AND_RETURN \
+  clear(); \
+  return;
+
 extern char** environ;
 
 extern "C" void handle_chld(int) {
@@ -127,26 +131,24 @@ void Command::execute() {
         _simpleCommands[0]->_arguments.size() > 3 ||
         _simpleCommands.size() > 1) {
       std::cerr << "usage: setenv A B" << std::endl;
-      exit(-1);
+      CLEAR_AND_RETURN
     }
-    int status = setenv(_simpleCommands[0]->_arguments[1]->c_str(), _simpleCommands[0]->_arguments[2]->c_str(), true);
-    if (status) {
+    if (setenv(_simpleCommands[0]->_arguments[1]->c_str(), _simpleCommands[0]->_arguments[2]->c_str(), true)) {
       HANDLE_ERRNO
     }
-    exit(status);
+    CLEAR_AND_RETURN
   } else if (tmpCmd == "unsetenv") {
     if (_simpleCommands[0]->_arguments.size() < 2 ||
         _simpleCommands[0]->_arguments.size() > 2 ||
         _simpleCommands.size() > 1) {
       std::cerr << "usage: unsetenv A" << std::endl;
-      exit(-1);
+      CLEAR_AND_RETURN
     }
     // TODO:
-    int status = unsetenv(_simpleCommands[0]->_arguments[1]->c_str());
-    if (status) {
+    if (unsetenv(_simpleCommands[0]->_arguments[1]->c_str())) {
       HANDLE_ERRNO
     }
-    exit(status);
+    CLEAR_AND_RETURN
   }
 
   pid_t pid;
