@@ -229,8 +229,8 @@ void Command::execute() {
   clear();
 
   // Print new prompt
-  printf("[completed] ");
-  Shell::prompt();
+  // printf("[completed] ");
+  // Shell::prompt();
 }
 
 SimpleCommand * Command::_currentSimpleCommand;

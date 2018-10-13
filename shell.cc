@@ -20,8 +20,8 @@ void Shell::prompt() {
 
 extern "C" void handle_int(int sig) {
   fprintf(stderr, "\nreceived signal %d (%s)\n", sig, strsignal(sig));
-  printf("[interrupted] ");
-  Shell::prompt();
+  // printf("[interrupted] ");
+  // Shell::prompt();
 }
 
 int main() {

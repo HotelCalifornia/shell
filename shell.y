@@ -54,6 +54,7 @@ commands:
 command_line:
   pipe_list iomodifier_list background_opt NEWLINE {
     Shell::_currentCommand.execute();
+    Shell::prompt();
   }
   | NEWLINE
   | error NEWLINE { yyerrok; }
