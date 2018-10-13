@@ -229,6 +229,7 @@ void Command::execute() {
   clear();
 
   // Print new prompt
+  printf("[completed] ");
   Shell::prompt();
 }
 
