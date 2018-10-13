@@ -188,37 +188,37 @@ void Command::execute() {
       close(pipefd[0]); // close input
 
       // handle builtins
-      if (cmd->_arguments[0] == "cd") {
+      if (*cmd->_arguments[0] == "cd") {
         // pass
         std::cout << "cd" << std::endl;
         exit(0);
-      } else if (cmd->_arguments[0] == "printenv") {
+      } else if (*cmd->_arguments[0] == "printenv") {
         int i = 0;
         while (environ[i]) {
           std::cout << environ[i++] << std::endl;
         }
         exit(0);
-      } else if (cmd->_arguments[0] == "setenv") {
+      } else if (*cmd->_arguments[0] == "setenv") {
         if (cmd->_arguments.size() < 3) {
           std::cerr << "usage: setenv A B" << std::endl;
           exit(-1);
         }
-        int status = setenv(cmd->_arguments[1], cmd->_arguments[2], true);
+        int status = setenv(cmd->_arguments[1]->c_str(), cmd->_arguments[2]->c_str(), true);
         if (status) {
           HANDLE_ERRNO
         }
         exit(status);
-      } else if (cmd->_arguments[0] == "unsetenv") {
+      } else if (*cmd->_arguments[0] == "unsetenv") {
         if (cmd->_arguments.size() < 2) {
           std::cerr << "usage: unsetenv A" << std::endl;
           exit(-1);
         }
-        int status = unsetenv(cmd->_arguments[1]);
+        int status = unsetenv(cmd->_arguments[1]->c_str());
         if (status) {
           HANDLE_ERRNO
         }
         exit(status);
-      } else if (cmd->_arguments[0] == "source") {
+      } else if (*cmd->_arguments[0] == "source") {
         // pass
         std::cout << "source" << std::endl;
         exit(0);
