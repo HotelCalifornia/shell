@@ -117,11 +117,36 @@ void Command::execute() {
   }
 
   // builtins
-  // auto tmpCmd = ;
-  if (*(_simpleCommands[0]->_arguments[0]) == "exit") {
+  auto tmpCmd = *(_simpleCommands[0]->_arguments[0]);
+  if (tmpCmd == "exit") {
     std::cout << "logout" << std::endl;
     clear();
     exit(0);
+  } else if (tmpCmd == "setenv") {
+    if (_simpleCommands[0]->_arguments.size() < 3 ||
+        _simpleCommands[0]->_arguments.size() > 3 ||
+        _simpleCommands.size() > 1) {
+      std::cerr << "usage: setenv A B" << std::endl;
+      exit(-1);
+    }
+    int status = setenv(_simpleCommands[0]->_arguments[1]->c_str(), _simpleCommands[0]->_arguments[2]->c_str(), true);
+    if (status) {
+      HANDLE_ERRNO
+    }
+    exit(status);
+  } else if (tmpCmd == "unsetenv") {
+    if (_simpleCommands[0]->_arguments.size() < 2 ||
+        _simpleCommands[0]->_arguments.size() > 2 ||
+        _simpleCommands.size() > 1) {
+      std::cerr << "usage: unsetenv A" << std::endl;
+      exit(-1);
+    }
+    // TODO:
+    int status = unsetenv(_simpleCommands[0]->_arguments[1]->c_str());
+    if (status) {
+      HANDLE_ERRNO
+    }
+    exit(status);
   }
 
   pid_t pid;
@@ -198,26 +223,6 @@ void Command::execute() {
           std::cout << environ[i++] << std::endl;
         }
         exit(0);
-      } else if (!strcmp(cmd->_arguments[0]->c_str(), "setenv")) {
-        if (cmd->_arguments.size() < 3) {
-          std::cerr << "usage: setenv A B" << std::endl;
-          exit(-1);
-        }
-        int status = setenv(cmd->_arguments[1]->c_str(), cmd->_arguments[2]->c_str(), true);
-        if (status) {
-          HANDLE_ERRNO
-        }
-        exit(status);
-      } else if (!strcmp(cmd->_arguments[0]->c_str(), "unsetenv")) {
-        if (cmd->_arguments.size() < 2) {
-          std::cerr << "usage: unsetenv A" << std::endl;
-          exit(-1);
-        }
-        int status = unsetenv(cmd->_arguments[1]->c_str());
-        if (status) {
-          HANDLE_ERRNO
-        }
-        exit(status);
       } else if (!strcmp(cmd->_arguments[0]->c_str(), "source")) {
         // pass
         std::cout << "source" << std::endl;
