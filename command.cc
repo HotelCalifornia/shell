@@ -32,7 +32,7 @@
 
 extern "C" void handle_int(int sig) {
   fprintf(stderr, "\nreceived signal %d (%s)\n", sig, strsignal(sig));
-  Shell::prompt();
+  // Shell::prompt();
 }
 
 Command::Command() {
@@ -132,7 +132,6 @@ void Command::execute() {
     return;
   }
 
-  // { // enclosing scope for other command execution
   pid_t pid;
 
   int ifd = STDIN_FILENO;
@@ -220,9 +219,9 @@ void Command::execute() {
   if (!_background) waitpid(pid, NULL, 0);
   // Clear to prepare for next command
   clear();
-  // } // end execution scope
+
   // Print new prompt if stdin is a tty
-  /* end: */ if (isatty(0)) Shell::prompt();
+  if (isatty(0)) Shell::prompt();
 }
 
 SimpleCommand * Command::_currentSimpleCommand;
