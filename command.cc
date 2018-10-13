@@ -35,6 +35,16 @@ extern "C" void handle_int(int sig) {
   // Shell::prompt();
 }
 
+extern "C" void handle_chld(int) {
+  // special thanks to https://stackoverflow.com/a/2378036/3681958
+  pid_t p;
+  int status;
+
+  while ((p = waitpid(-1, &status, WNOHANG)) != -1) {
+    std::cout << "[" << p << "]" << " exited with code " << status << std::endl;
+  }
+}
+
 Command::Command() {
   // Initialize a new vector of Simple Commands
   _simpleCommands = std::vector<SimpleCommand *>();
@@ -208,6 +218,16 @@ void Command::execute() {
       ifd = pipefd[0];
     }
   }
+  // handle children exiting
+  struct sigaction sa;
+  sa.sa_handler = handle_chld;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  if (sigaction(SIGCHLD, &sa, NULL)) {
+    perror(strerror(errno));
+    exit(-1);
+  }
+
   // restore stdin, stdout, stderr
   dup2(stdinfd, STDIN_FILENO);
   dup2(stdoutfd, STDOUT_FILENO);
