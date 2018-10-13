@@ -123,6 +123,7 @@ void Command::execute() {
     exit(0);
   } else if (tmpCmd == "cd") {
     // pass
+    std::cout << "cd" << std::endl;
     goto end;
   } else if (tmpCmd == "printenv") {
     // pass
