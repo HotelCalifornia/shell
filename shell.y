@@ -13,6 +13,7 @@
 
 %code requires
 {
+#define YYDEBUG 1
 #include <string>
 
 #if __cplusplus > 199711L
