@@ -121,7 +121,6 @@ void Command::execute() {
   } else if (tmpCmd == "cd") {
     // pass
     std::cout << "cd" << std::endl;
-    Shell::prompt();
     return;
   } else if (tmpCmd == "printenv") {
     // pass
