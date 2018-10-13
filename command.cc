@@ -123,8 +123,10 @@ void Command::execute() {
       exit(0);
     } else if (tmpCmd == "cd") {
       // pass
+      return;
     } else if (tmpCmd == "printenv") {
       // pass
+      return;
     }
 
     // Print contents of Command data structure
