@@ -232,7 +232,7 @@ void Command::execute() {
     struct sigaction sa;
     sa.sa_handler = handle_chld;
     sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
+    sa.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &sa, NULL)) {
       perror(strerror(errno));
       exit(-1);
