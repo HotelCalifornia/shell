@@ -11,8 +11,9 @@
 
 int yyparse(void);
 
-void Shell::prompt() {
+void Shell::prompt(bool newline) {
   if (isatty(0)) {
+    if (newline) printf("\n");
     printf("myshell>");
     fflush(stdout);
   }
@@ -22,8 +23,8 @@ extern "C" void handle_int(int sig) {
   // do nothing
   // fprintf(stderr, "\nreceived signal %d (%s)\n", sig, strsignal(sig));
   // printf("[interrupted] ");
-  printf("\n");
-  Shell::prompt();
+  
+  Shell::prompt(true);
 }
 
 int main() {

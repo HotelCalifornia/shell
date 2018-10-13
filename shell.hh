@@ -5,7 +5,7 @@
 
 struct Shell {
 
-  static void prompt();
+  static void prompt(bool newline = false);
 
   static Command _currentCommand;
 };
