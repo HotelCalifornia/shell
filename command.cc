@@ -132,9 +132,9 @@ void Command::execute() {
     CLEAR_AND_RETURN
   } else if (tmpCmd == "printenv") {
     // pass
-    char* e;
-    while ((e = *environ++)) {
-      std::cout << e << std::endl;
+    int i = 0;
+    while (environ[i]) {
+      std::cout << environ[i++] << std::endl;
     }
     CLEAR_AND_RETURN
   } else if (tmpCmd == "setenv") {
