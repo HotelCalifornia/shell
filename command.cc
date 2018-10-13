@@ -139,12 +139,6 @@ void Command::execute() {
     // special thanks to https://stackoverflow.com/questions/17630247/coding-multiple-pipe-in-c/17631589
     pipe(pipefd);
 
-    // convert to const* char*
-    // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
-    std::vector<char*> argv;
-    for (auto arg : cmd->_arguments) argv.push_back(arg->data());
-    argv.push_back(NULL);
-
     // file redirection
     if (cmd == _simpleCommands.front()) { // first command, open input/error redirect file if necessary
       if (_inFile) ifd = open(_inFile->c_str(), O_RDONLY);
@@ -194,41 +188,47 @@ void Command::execute() {
       close(pipefd[0]); // close input
 
       // handle builtins
-      if (argv[0] == "cd") {
+      if (cmd->_arguments[0] == "cd") {
         // pass
         std::cout << "cd" << std::endl;
         exit(0);
-      } else if (argv[0] == "printenv") {
+      } else if (cmd->_arguments[0] == "printenv") {
         int i = 0;
         while (environ[i]) {
           std::cout << environ[i++] << std::endl;
         }
         exit(0);
-      } else if (argv[0] == "setenv") {
-        if (argv.size() < 3) {
+      } else if (cmd->_arguments[0] == "setenv") {
+        if (cmd->_arguments.size() < 3) {
           std::cerr << "usage: setenv A B" << std::endl;
           exit(-1);
         }
-        int status = setenv(argv[1], argv[2], true);
+        int status = setenv(cmd->_arguments[1], cmd->_arguments[2], true);
         if (status) {
           HANDLE_ERRNO
         }
         exit(status);
-      } else if (argv[0] == "unsetenv") {
-        if (argv.size() < 2) {
+      } else if (cmd->_arguments[0] == "unsetenv") {
+        if (cmd->_arguments.size() < 2) {
           std::cerr << "usage: unsetenv A" << std::endl;
           exit(-1);
         }
-        int status = unsetenv(argv[1]);
+        int status = unsetenv(cmd->_arguments[1]);
         if (status) {
           HANDLE_ERRNO
         }
         exit(status);
-      } else if (argv[0] == "source") {
+      } else if (cmd->_arguments[0] == "source") {
         // pass
         std::cout << "source" << std::endl;
         exit(0);
       } else { // handle other commands
+        // convert to const* char*
+        // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
+        std::vector<char*> argv;
+        for (auto arg : cmd->_arguments) argv.push_back(arg->data());
+        argv.push_back(NULL);
+
         exit(execvp(argv[0], argv.data()));
       }
     } else { // parent
