@@ -123,10 +123,10 @@ void Command::execute() {
       exit(0);
     } else if (tmpCmd == "cd") {
       // pass
-      return;
+      goto end;
     } else if (tmpCmd == "printenv") {
       // pass
-      return;
+      goto end;
     }
 
     // Print contents of Command data structure
@@ -223,8 +223,8 @@ void Command::execute() {
     // Clear to prepare for next command
     clear();
 
-    // Print new prompt if stdin is a tty
-    if (isatty(0)) Shell::prompt();
+   // Print new prompt if stdin is a tty
+    end: if (isatty(0)) Shell::prompt();
 }
 
 SimpleCommand * Command::_currentSimpleCommand;
