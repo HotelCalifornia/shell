@@ -188,17 +188,17 @@ void Command::execute() {
       close(pipefd[0]); // close input
 
       // handle builtins
-      if (*cmd->_arguments[0] == "cd") {
+      if (!strcmp(cmd->_arguments[0]->c_str(), "cd")) {
         // pass
         std::cout << "cd" << std::endl;
         exit(0);
-      } else if (*cmd->_arguments[0] == "printenv") {
+      } else if (!strcmp(cmd->_arguments[0]->c_str(), "printenv")) {
         int i = 0;
         while (environ[i]) {
           std::cout << environ[i++] << std::endl;
         }
         exit(0);
-      } else if (*cmd->_arguments[0] == "setenv") {
+      } else if (!strcmp(cmd->_arguments[0]->c_str(), "setenv")) {
         if (cmd->_arguments.size() < 3) {
           std::cerr << "usage: setenv A B" << std::endl;
           exit(-1);
@@ -208,7 +208,7 @@ void Command::execute() {
           HANDLE_ERRNO
         }
         exit(status);
-      } else if (*cmd->_arguments[0] == "unsetenv") {
+      } else if (!strcmp(cmd->_arguments[0]->c_str(), "unsetenv")) {
         if (cmd->_arguments.size() < 2) {
           std::cerr << "usage: unsetenv A" << std::endl;
           exit(-1);
@@ -218,7 +218,7 @@ void Command::execute() {
           HANDLE_ERRNO
         }
         exit(status);
-      } else if (*cmd->_arguments[0] == "source") {
+      } else if (!strcmp(cmd->_arguments[0]->c_str(), "source")) {
         // pass
         std::cout << "source" << std::endl;
         exit(0);
