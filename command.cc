@@ -33,10 +33,6 @@
 #define HANDLE_ERRNO \
   std::cerr << "error: " << strerror(errno) << std::endl;
 
-#define CLEAR_AND_RETURN \
-  clear(); \
-  return;
-
 extern char** environ;
 
 extern "C" void handle_chld(int) {
@@ -121,40 +117,11 @@ void Command::execute() {
   }
 
   // builtins
-  auto tmpCmd = *(_simpleCommands[0]->_arguments[0]);
-  if (tmpCmd == "exit") {
+  // auto tmpCmd = ;
+  if (*(_simpleCommands[0]->_arguments[0]) == "exit") {
     std::cout << "logout" << std::endl;
     clear();
     exit(0);
-  } else if (tmpCmd == "cd") {
-    // pass
-    std::cout << "cd" << std::endl;
-    CLEAR_AND_RETURN
-  } else if (tmpCmd == "printenv") {
-    // pass
-    int i = 0;
-    while (environ[i]) {
-      std::cout << environ[i++] << std::endl;
-    }
-    CLEAR_AND_RETURN
-  } else if (tmpCmd == "setenv") {
-    if (_simpleCommands[0]->_arguments.size() < 3) {
-      std::cerr << "usage: setenv A B" << std::endl;
-      CLEAR_AND_RETURN
-    }
-    if (setenv(_simpleCommands[0]->_arguments[1]->c_str(), _simpleCommands[0]->_arguments[2]->c_str(), true)) {
-      HANDLE_ERRNO
-    }
-    CLEAR_AND_RETURN
-  } else if (tmpCmd == "unsetenv") {
-    if (_simpleCommands[0]->_arguments.size() < 2) {
-      std::cerr << "usage: unsetenv A" << std::endl;
-      CLEAR_AND_RETURN
-    }
-    if (unsetenv(_simpleCommands[0]->_arguments[1]->c_str())) {
-      HANDLE_ERRNO
-    }
-    CLEAR_AND_RETURN
   }
 
   pid_t pid;
@@ -226,7 +193,44 @@ void Command::execute() {
 
       close(pipefd[0]); // close input
 
-      exit(execvp(argv[0], argv.data()));
+      // handle builtins
+      if (argv[0] == "cd") {
+        // pass
+        std::cout << "cd" << std::endl;
+        exit(0);
+      } else if (argv[0] == "printenv") {
+        int i = 0;
+        while (environ[i]) {
+          std::cout << environ[i++] << std::endl;
+        }
+        exit(0);
+      } else if (argv[0] == "setenv") {
+        if (argv.size() < 3) {
+          std::cerr << "usage: setenv A B" << std::endl;
+          exit(-1);
+        }
+        int status = setenv(argv[1], argv[2], true);
+        if (status) {
+          HANDLE_ERRNO
+        }
+        exit(status);
+      } else if (argv[0] == "unsetenv") {
+        if (argv.size() < 2) {
+          std::cerr << "usage: unsetenv A" << std::endl;
+          exit(-1);
+        }
+        int status = unsetenv(argv[1]);
+        if (status) {
+          HANDLE_ERRNO
+        }
+        exit(status);
+      } else if (argv[0] == "source") {
+        // pass
+        std::cout << "source" << std::endl;
+        exit(0);
+      } else { // handle other commands
+        exit(execvp(argv[0], argv.data()));
+      }
     } else { // parent
       // wait(NULL); // wait for child to finish before moving on
       close(pipefd[1]); // close segment output
