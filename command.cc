@@ -117,10 +117,12 @@ void Command::execute() {
   auto tmpCmd = *(_simpleCommands[0]->_arguments[0]);
   if (tmpCmd == "exit") {
     std::cout << "logout" << std::endl;
+    clear();
     exit(0);
   } else if (tmpCmd == "cd") {
     // pass
     std::cout << "cd" << std::endl;
+    clear();
     return;
   } else if (tmpCmd == "printenv") {
     // pass
@@ -128,6 +130,7 @@ void Command::execute() {
     while ((e = *environ++)) {
       std::cout << e << std::endl;
     }
+    clear();
     return;
   }
 
