@@ -116,6 +116,17 @@ void Command::execute() {
         return;
     }
 
+    // builtins
+    auto tmpCmd = *(_simpleCommands[0]->_arguments[0]);
+    if (tmpCmd == "exit") {
+      std::cout << "logout" << std::endl;
+      exit(0);
+    } else if (tmpCmd == "cd") {
+      // pass
+    } else if (tmpCmd == "printenv") {
+      // pass
+    }
+
     // Print contents of Command data structure
     // print();
 
