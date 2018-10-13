@@ -218,15 +218,6 @@ void Command::execute() {
       ifd = pipefd[0];
     }
   }
-  // handle children exiting
-  struct sigaction sa;
-  sa.sa_handler = handle_chld;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = 0;
-  if (sigaction(SIGCHLD, &sa, NULL)) {
-    perror(strerror(errno));
-    exit(-1);
-  }
 
   // restore stdin, stdout, stderr
   dup2(stdinfd, STDIN_FILENO);
@@ -234,7 +225,18 @@ void Command::execute() {
   dup2(stderrfd, STDERR_FILENO);
 
   // special print for backgrounded processes
-  if (_background) std::cout << "[1] " << pid << std::endl;
+  if (_background) {
+    std::cout << "[1] " << pid << std::endl;
+    // handle exit
+    struct sigaction sa;
+    sa.sa_handler = handle_chld;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if (sigaction(SIGCHLD, &sa, NULL)) {
+      perror(strerror(errno));
+      exit(-1);
+    }
+  }
   // wait for non-backgrounded processes to complete before moving on
   if (!_background) waitpid(pid, NULL, 0);
   // Clear to prepare for next command
