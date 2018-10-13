@@ -229,14 +229,14 @@ void Command::execute() {
   if (_background) {
     std::cout << "[1] " << pid << std::endl;
     // handle exit
-    // struct sigaction sa;
-    // sa.sa_handler = handle_chld;
-    // sigemptyset(&sa.sa_mask);
-    // sa.sa_flags = 0;
-    // if (sigaction(SIGCHLD, &sa, NULL)) {
-    //   perror(strerror(errno));
-    //   exit(-1);
-    // }
+    struct sigaction sa;
+    sa.sa_handler = handle_chld;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if (sigaction(SIGCHLD, &sa, NULL)) {
+      perror(strerror(errno));
+      exit(-1);
+    }
   }
   // wait for non-backgrounded processes to complete before moving on
   if (!_background) waitpid(pid, NULL, 0);
