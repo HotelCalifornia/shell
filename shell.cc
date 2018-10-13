@@ -19,11 +19,11 @@ void Shell::prompt(bool newline) {
   }
 }
 
-extern "C" void handle_int(int sig) {
+extern "C" void handle_int(int) {
   // do nothing
   // fprintf(stderr, "\nreceived signal %d (%s)\n", sig, strsignal(sig));
   // printf("[interrupted] ");
-  
+
   Shell::prompt(true);
 }
 

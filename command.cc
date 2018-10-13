@@ -30,6 +30,13 @@
 #include "command.hh"
 #include "shell.hh"
 
+#define HANDLE_ERRNO \
+  std::cerr << "error: " << strerror(errno) << std::endl;
+
+#define CLEAR_AND_RETURN \
+  clear(); \
+  return;
+
 extern char** environ;
 
 extern "C" void handle_chld(int) {
@@ -122,16 +129,32 @@ void Command::execute() {
   } else if (tmpCmd == "cd") {
     // pass
     std::cout << "cd" << std::endl;
-    clear();
-    return;
+    CLEAR_AND_RETURN
   } else if (tmpCmd == "printenv") {
     // pass
     char* e;
     while ((e = *environ++)) {
       std::cout << e << std::endl;
     }
-    clear();
-    return;
+    CLEAR_AND_RETURN
+  } else if (tmpCmd == "setenv") {
+    if (_simpleCommands[0]->_arguments.size() < 3) {
+      std::cerr << "usage: setenv A B" << std::endl;
+      CLEAR_AND_RETURN
+    }
+    if (setenv(_simpleCommands[0]->_arguments[1]->c_str(), _simpleCommands[0]->_arguments[2]->c_str(), true)) {
+      HANDLE_ERRNO
+    }
+    CLEAR_AND_RETURN
+  } else if (tmpCmd == "unsetenv") {
+    if (_simpleCommands[0]->_arguments.size() < 2) {
+      std::cerr << "usage: unsetenv A" << std::endl;
+      CLEAR_AND_RETURN
+    }
+    if (unsetenv(_simpleCommands[0]->_arguments[1]->c_str())) {
+      HANDLE_ERRNO
+    }
+    CLEAR_AND_RETURN
   }
 
   pid_t pid;
@@ -225,7 +248,7 @@ void Command::execute() {
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &sa, NULL)) {
-      perror(strerror(errno));
+      HANDLE_ERRNO
       exit(-1);
     }
   }
