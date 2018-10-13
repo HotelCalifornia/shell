@@ -144,7 +144,6 @@ void Command::execute() {
       std::cerr << "usage: unsetenv A" << std::endl;
       CLEAR_AND_RETURN
     }
-    // TODO:
     if (unsetenv(_simpleCommands[0]->_arguments[1]->c_str())) {
       HANDLE_ERRNO
     }
