@@ -1,6 +1,6 @@
 #include <cstdio>
 
-#include <unistd.h>
+#include <signal.h>
 
 #include "shell.hh"
 
@@ -15,9 +15,23 @@ void Shell::prompt() {
   }
 }
 
+extern "C" void handle_int(int sig) {
+  fprintf(stderr, "\nreceived signal %d (%s)\n", sig, strsignal(sig));
+}
+
 int main() {
   // yydebug = 1;
-  if (isatty(0)) Shell::prompt();
+  // handle SIGINT
+  struct sigaction sa;
+  sa.sa_handler = handle_int;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = SA_RESTART;
+  if (sigaction(SIGINT, &sa, NULL)) {
+    perror(strerror(errno));
+    exit(-1);
+  }
+
+  Shell::prompt();
   yyparse();
 }
 

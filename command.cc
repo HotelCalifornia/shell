@@ -30,11 +30,6 @@
 #include "command.hh"
 #include "shell.hh"
 
-extern "C" void handle_int(int sig) {
-  fprintf(stderr, "\nreceived signal %d (%s)\n", sig, strsignal(sig));
-  // Shell::prompt();
-}
-
 extern "C" void handle_chld(int) {
   // special thanks to https://stackoverflow.com/a/2378036/3681958
   pid_t p;
@@ -42,8 +37,8 @@ extern "C" void handle_chld(int) {
 
   while ((p = waitpid(-1, &status, WNOHANG)) != -1) {
     std::cout << "[" << p << "]" << " exited with code " << status << std::endl;
-    // exit(status);
   }
+  Shell::prompt();
 }
 
 Command::Command() {
@@ -54,16 +49,6 @@ Command::Command() {
   _inFile = NULL;
   _errFile = NULL;
   _background = false;
-
-  // interrupt handler
-  struct sigaction sa;
-  sa.sa_handler = handle_int;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = SA_RESTART;
-  if (sigaction(SIGINT, &sa, NULL)) {
-    perror(strerror(errno));
-    exit(-1);
-  }
 }
 
 void Command::insertSimpleCommand( SimpleCommand * simpleCommand ) {
