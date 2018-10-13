@@ -31,7 +31,8 @@
 #include "shell.hh"
 
 extern "C" void handle_int(int sig) {
-  fprintf(stderr, "\nreceived signal %d (%s)", sig, strsignal(sig));
+  fprintf(stderr, "\nreceived signal %d (%s)\n", sig, strsignal(sig));
+  Shell::prompt();
 }
 
 Command::Command() {
@@ -203,80 +204,6 @@ void Command::execute() {
     dup2(stdinfd, STDIN_FILENO);
     dup2(stdoutfd, STDOUT_FILENO);
     dup2(stderrfd, STDERR_FILENO);
-
-#if 0
-    for (auto cmd : _simpleCommands) {
-      pid = fork();
-
-      if (pid == -1) {
-        perror("fatal: fork\n");
-        exit(2);
-      }
-
-      // only need to open output fd once if out and err go to same place
-      if ((_outFile || _errFile) && _outFile == _errFile) ofd = efd = creat(_outFile->c_str(), 0666);
-      else if (_outFile) ofd = creat(_outFile->c_str(), 0666);
-      else if (_errFile) efd = creat(_errFile->c_str(), 0666);
-
-      if (_inFile) ifd = creat(_inFile->c_str(), 0666);
-
-      // TODO: ????
-      if (ifd < 0) {
-        perror("fatal: creat input file\n");
-        exit(2);
-      }
-      if (int e0 = dup2(stdinfd, ifd); e0 == -1) {
-        perror("fatal: redirect stdin\n");
-        exit(2);
-      }
-      // end TODO
-      if (ofd < 0) {
-        perror("fatal: creat output file\n");
-        exit(2);
-      }
-      if (int e1 = dup2(ofd, 1); e1 == -1) {
-        perror("fatal: redirect stdout\n");
-        exit(2);
-      }
-      if (efd < 0) {
-        perror("fatal: creat error file\n");
-        exit(2);
-      }
-      if (int e2 = dup2(efd, 2); e2 == -1) {
-        perror("fatal: redirect stderr\n");
-        exit(2);
-      }
-
-
-      int fdpipe[2];
-      if (_simpleCommands.size() > 1) {
-        if (pipe(fdpipe) == -1) {
-          perror("fatal: pipe\n");
-          exit(2);
-        }
-        dup2(fdpipe[1], 1);
-      }
-
-      if (pid == 0) {
-        close(stdinfd);
-        close(stdoutfd);
-        close(stderrfd);
-
-        // special thanks to https://stackoverflow.com/questions/48727690/invalid-conversion-from-const-char-to-char-const
-        std::vector<char*> argv;
-        for (auto arg : cmd->_arguments) argv.push_back(arg->data());
-        argv.push_back(NULL);
-
-        execvp(cmd->_arguments[0]->c_str(), argv.data());
-      }
-      dup2(stdinfd, 0);
-      dup2(stdoutfd, 1);
-      dup2(stderrfd, 2);
-    }
-    // restore stdin, stdout, stderr
-    // dup2(0, stdinfd);
-    // dup2(2, stderrfd);
-#endif
 
     if (_background) std::cout << "[1] " << pid << std::endl;
     if (!_background) waitpid(pid, NULL, 0);
