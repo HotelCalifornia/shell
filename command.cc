@@ -120,10 +120,51 @@ void Command::execute() {
       return;
   }
 
+  // print();
+
+  for (auto cmd : _simpleCommands) {
+    for (auto arg : cmd->_arguments) {
+      auto it = arg->begin();
+      while (true) {
+        auto b = std::find(it, arg->end(), '$');
+        auto e = std::find(b, arg->end(), '}');
+        // invalid expansion syntax; ignore
+        if (b == arg->end() || *(b + 1) != '{' || e == arg->end()) break;
+        auto tvar = getenv(std::string(b + 2, e).c_str());
+        std::string var = !tvar ? "" : tvar;
+        arg->replace(b, e + 1, var);
+        it += (e - b);
+      }
+    }
+  }
+
   // builtins
   auto tmpCmd = *(_simpleCommands[0]->_arguments[0]);
-  if (tmpCmd == "exit") {
-    std::cout << "logout" << std::endl;
+  if (tmpCmd == "cd") {
+    // std::cerr << *cmd->_arguments[0] << " " << *cmd->_arguments[1] << std::endl;
+    std::string dir = "";
+    // XXX: doesn't handle the case in which neither HOME nor OLDPWD are set
+    if (_simpleCommands[0]->_arguments.size() < 2) { // no path specified, set to home
+      dir = getenv("HOME");
+    } else if (!strcmp(_simpleCommands[0]->_arguments[1]->c_str(), "-")) { // set to oldpwd
+      auto tmp = getenv("OLDPWD");
+      if (!tmp) tmp = getenv("HOME");
+      dir = tmp;
+    } else dir = *_simpleCommands[0]->_arguments[1];
+
+    // set oldpwd before changing
+    auto old = getcwd(NULL, 0);
+    setenv("OLDPWD", old, true);
+    delete old;
+
+    int status = chdir(dir.c_str());
+    if (status) {
+      // HANDLE_ERRNO
+      std::cerr << "cd: can't cd to " << dir << std::endl;
+    }
+    CLEAR_AND_RETURN
+  } else if (tmpCmd == "exit") {
+    if (isatty(0)) std::cout << "logout" << std::endl;
     clear();
     exit(0);
   } else if (tmpCmd == "setenv") {
@@ -144,6 +185,7 @@ void Command::execute() {
       std::cerr << "usage: unsetenv A" << std::endl;
       CLEAR_AND_RETURN
     }
+    // TODO: alternate method: set value to "" (EDIT: passes the test case as-is so whatever)
     if (unsetenv(_simpleCommands[0]->_arguments[1]->c_str())) {
       HANDLE_ERRNO
     }
@@ -214,11 +256,7 @@ void Command::execute() {
       close(pipefd[0]); // close input
 
       // handle builtins
-      if (!strcmp(cmd->_arguments[0]->c_str(), "cd")) {
-        // pass
-        std::cout << "cd" << std::endl;
-        exit(0);
-      } else if (!strcmp(cmd->_arguments[0]->c_str(), "printenv")) {
+      if (!strcmp(cmd->_arguments[0]->c_str(), "printenv")) {
         int i = 0;
         while (environ[i]) {
           std::cout << environ[i++] << std::endl;

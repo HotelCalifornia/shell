@@ -1,21 +1,36 @@
-#include <cstdio>
+#include <string>
 
-#include <errno.h>
-#include <signal.h>
-#include <string.h>
+#include <cerrno>
+#include <csignal>
+#include <cstdio>
+#include <cstring>
 #include <unistd.h>
 
 #include "shell.hh"
 
 #include "y.tab.hh"
 
+extern void lsource(std::string* fname);
+
 int yyparse(void);
 
 void Shell::prompt(bool newline) {
-  if (isatty(0)) {
+  if (isatty(0) && !getenv("SOURCE_COMMAND")) {
     if (newline) printf("\n");
     printf("myshell>");
     fflush(stdout);
+  }
+}
+
+void Shell::source(std::string* fname, bool needresume) {
+  setenv("SOURCE_COMMAND", "1", false);
+  lsource(fname);
+  unsetenv("SOURCE_COMMAND");
+
+  // resume parse loop. needresume is true unless sourcing .shellrc
+  if (needresume){
+    Shell::prompt();
+    yyparse();
   }
 }
 
@@ -37,6 +52,20 @@ int main() {
   if (sigaction(SIGINT, &sa, NULL)) {
     perror(strerror(errno));
     exit(-1);
+  }
+
+  // source shellrc
+  std::string sourcedir = "";
+  if (getenv("HOME")) sourcedir = getenv("HOME");
+  else sourcedir = ".";
+
+  sourcedir += "/.shellrc";
+
+  if (access(sourcedir.c_str(), R_OK) != -1) {
+    // don't need to resume parse loop because we'll fall through
+    Shell::source(&sourcedir, false);
+  } else {
+    fprintf(stderr, "error: source %s: %s\n", sourcedir.c_str(), strerror(errno));
   }
 
   Shell::prompt();

@@ -9,6 +9,8 @@
 
 %{
 
+#include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include "y.tab.hh"
 
@@ -16,6 +18,18 @@ static  void yyunput (int c,char *buf_ptr  );
 
 void myunputc(int c) {
   unput(c);
+}
+
+void lsource(std::string* fname) {
+  FILE* sfile = fopen(fname->c_str(), "r");
+  if (sfile) {
+    yypush_buffer_state(yy_create_buffer(sfile, YY_BUF_SIZE));
+    yyparse();
+    yypop_buffer_state();
+    yyrestart(stdin);
+  } else {
+    perror(strerror(errno));
+  }
 }
 
 %}
@@ -60,13 +74,17 @@ void myunputc(int c) {
   return PIPE;
 }
 
-[^ \t\n][^ \t\n]*  {
-  /* Assume that file names have only alpha chars */
+"source" {
+  return SOURCE_COMMAND;
+}
+
+\"[^\"]*\" {
   yylval.cpp_string = new std::string(yytext);
   return WORD;
 }
 
-\"[^"]\" {
+([\\]([\\][\\])*[^\n\t]|[^&<>|\n\t \\]|([\\][\\])+)+ {
+  /* Assume that file names have only alpha chars */
   yylval.cpp_string = new std::string(yytext);
   return WORD;
 }

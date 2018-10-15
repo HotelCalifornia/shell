@@ -13,6 +13,7 @@
 
 %code requires
 {
+#include <algorithm> // std::remove
 #include <string>
 
 #if __cplusplus > 199711L
@@ -28,11 +29,13 @@
 }
 
 %token <cpp_string> WORD
-%token NOTOKEN GREAT LESS NEWLINE AMP GREATGREAT ERRGREAT GREATAMP ERRGREATGREAT GREATGREATAMP PIPE
+%token NOTOKEN GREAT LESS NEWLINE AMP GREATGREAT ERRGREAT GREATAMP ERRGREATGREAT GREATGREATAMP PIPE SOURCE_COMMAND
 
 %{
 //#define yylex yylex
+#include <cerrno>
 #include <cstdio>
+#include <cstring>
 #include "shell.hh"
 
 void yyerror(const char * s);
@@ -77,6 +80,13 @@ command_word:
     Command::_currentSimpleCommand = new SimpleCommand();
     Command::_currentSimpleCommand->insertArgument( $1 );
   }
+  | SOURCE_COMMAND WORD { /* source command */
+    Shell::source($2);
+  }
+  | SOURCE_COMMAND { /* invalid syntax */
+    yyerror("usage: source filename");
+    yyerrok;
+  }
   ;
 
 argument_list:
@@ -87,11 +97,18 @@ argument_list:
 argument:
   WORD {
     /* remove quotes from compound argument */
-    if ((*$1)[0] == '"') {
-      $1->erase($1->end() - 1);
-      $1->erase($1->begin());
-    }
-    Command::_currentSimpleCommand->insertArgument( $1 );\
+    /* if ($1->front() == '\"' && $1->back() == '\"') { /* check front and back as a precaution
+
+      *$1 = $1->substr(1, $1->size() - 2);
+    } */
+
+    $1->erase(Shell::remove_if_unescaped($1, '\"'), $1->end());
+    /* handle escaped characters */
+    $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
+    /* run it again to clean up leftovers */
+    $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
+
+    Command::_currentSimpleCommand->insertArgument($1);
   }
   ;
 
