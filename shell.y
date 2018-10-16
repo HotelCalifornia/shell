@@ -14,6 +14,7 @@
 %code requires
 {
 #include <algorithm> // std::remove
+#include <iterator> // std::make_reverse_iterator
 #include <string>
 
 #if __cplusplus > 199711L
@@ -43,7 +44,8 @@
 
 #include "shell.hh"
 
-void yyerror(const char * s);
+void yyerror(const char* s);
+void myunputc(int c);
 int yylex();
 
 %}
@@ -106,10 +108,12 @@ argument:
 
       *$1 = $1->substr(1, $1->size() - 2);
     } */
-    printf("dbg: %s\n", $1->c_str());
+    /* printf("dbg: %s\n", $1->c_str()); */
     if ($1->front() == '$' && *($1->begin() + 1) == '(' && $1->back() == ')') { /* subshell */
+      printf("dbg: in subshell parse\n");
       /* strip '$(' and ')' */
       auto cmd = std::string($1->begin() + 2, $1->end());
+      printf("\tcleaned subshell cmd: %s\n", cmd.c_str());
       pid_t pid;
 
       int cmdPipe[2]; pipe(cmdPipe);
@@ -125,7 +129,7 @@ argument:
       } else { /* parent */
         close(cmdPipe[0]);
         close(outPipe[1]);
-        dprintf(cmdPipe[1], "%s\n", cmd.c_str());
+        dprintf(cmdPipe[1], "%s\nexit\n", cmd.c_str());
         /* wait for child proc to finish in order to ensure all the data we want is avail */
         waitpid(pid, NULL, 0);
         std::string subshell_out = "";
@@ -136,7 +140,12 @@ argument:
           if (c == '\n') subshell_out += ' ';
           else subshell_out += c;
         }
-        Command::_currentSimpleCommand->insertArgument(&subshell_out);
+        fclose(stream);
+        std::for_each(
+          subshell_out.rbegin(),
+          subshell_out.rend(),
+          [](auto c) { myunputc(c); }
+        );
       }
     } else {
       $1->erase(Shell::remove_if_unescaped($1, '\"'), $1->end());

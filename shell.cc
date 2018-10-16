@@ -10,7 +10,7 @@
 
 #include "y.tab.hh"
 
-extern void lsource(std::string* fname);
+void lsource(std::string* fname);
 
 int yyparse(void);
 
