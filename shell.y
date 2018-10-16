@@ -127,7 +127,7 @@ argument:
         close(outPipe[1]);
         dprintf(cmdPipe[1], "%s\n", cmd.c_str());
         /* wait for child proc to finish in order to ensure all the data we want is avail */
-        waitpid(pid, NULL);
+        waitpid(pid, NULL, 0);
         std::string subshell_out = "";
         FILE* stream;
         char c;

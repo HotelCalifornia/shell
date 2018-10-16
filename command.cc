@@ -185,7 +185,7 @@ void Command::execute() {
       std::cerr << "usage: unsetenv A" << std::endl;
       CLEAR_AND_RETURN
     }
-    // TODO: alternate method: set value to "" (EDIT: passes the test case as-is so whatever)
+    // NOTE: alternate method: set value to "" (EDIT: passes the test case as-is so whatever)
     if (unsetenv(_simpleCommands[0]->_arguments[1]->c_str())) {
       HANDLE_ERRNO
     }
