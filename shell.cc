@@ -49,7 +49,7 @@ extern "C" void handle_int(int) {
 int main(int argc, char** argv) {
   if (argc > 1) {
     if (!strcmp(argv[1], "subshell")) {
-      is_subshell = true;
+      _is_subshell = true;
     }
   }
   // yydebug = 1;
