@@ -14,8 +14,12 @@ extern void lsource(std::string* fname);
 
 int yyparse(void);
 
+static bool _is_subshell = false;
+
+bool Shell::is_subshell() { return _is_subshell; }
+
 void Shell::prompt(bool newline) {
-  if (isatty(0) && !getenv("SOURCE_COMMAND")) {
+  if (isatty(0) && !getenv("SOURCE_COMMAND") && !getenv("SUBSHELL")) {
     if (newline) printf("\n");
     printf("myshell>");
     fflush(stdout);
@@ -42,7 +46,12 @@ extern "C" void handle_int(int) {
   Shell::prompt(true);
 }
 
-int main() {
+int main(int argc, char** argv) {
+  if (argc > 1) {
+    if (!strcmp(argv[1], "subshell")) {
+      is_subshell = true;
+    }
+  }
   // yydebug = 1;
   // handle SIGINT
   struct sigaction sa;

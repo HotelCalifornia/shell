@@ -7,7 +7,7 @@
 #include "command.hh"
 
 struct Shell {
-
+  static bool is_subshell();
   static void prompt(bool newline = false);
   static void source(std::string* fname, bool needresume = true);
 

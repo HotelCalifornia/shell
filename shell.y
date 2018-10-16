@@ -36,6 +36,10 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "shell.hh"
 
 void yyerror(const char * s);
@@ -102,13 +106,46 @@ argument:
       *$1 = $1->substr(1, $1->size() - 2);
     } */
 
-    $1->erase(Shell::remove_if_unescaped($1, '\"'), $1->end());
-    /* handle escaped characters */
-    $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
-    /* run it again to clean up leftovers */
-    $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
+    if ($1->front() == '$' && *($1->begin() + 1) == '(' && $1->back() == ')') { /* subshell */
+      /* strip '$(' and ')' */
+      auto cmd = std::string($1->begin() + 2, $1->end());
+      pid_t pid;
 
-    Command::_currentSimpleCommand->insertArgument($1);
+      int cmdPipe[2]; pipe(cmdPipe);
+      int outPipe[2]; pipe(outPipe);
+
+      if ((pid = fork()) == -1) {
+        yyerror("fatal: fork\n");
+        exit(-1);
+      } else if (pid == 0) { /* child */
+        dup2(cmdPipe[0], STDIN_FILENO); close(cmdPipe[1]);
+        dup2(outPipe[1], STDOUT_FILENO); close(outPipe[0]);
+        exit(execlp("/proc/self/exe", "subshell"));
+      } else { /* parent */
+        close(cmdPipe[0]);
+        close(outPipe[1]);
+        dprintf(cmdPipe[1], "%s\n", cmd.c_str());
+        /* wait for child proc to finish in order to ensure all the data we want is avail */
+        waitpid(pid, NULL);
+        std::string subshell_out = "";
+        FILE* stream;
+        char c;
+        stream = fdopen(outPipe[0]);
+        while ((c = fgetc(stream)) != EOF) {
+          if (c == '\n') subshell_out += ' ';
+          else subshell_out += c;
+        }
+        Command::_currentSimpleCommand->insertArgument(&subshell_out);
+      }
+    } else {
+      $1->erase(Shell::remove_if_unescaped($1, '\"'), $1->end());
+      /* handle escaped characters */
+      $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
+      /* run it again to clean up leftovers */
+      $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
+
+      Command::_currentSimpleCommand->insertArgument($1);
+    }
   }
   ;
 

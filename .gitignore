@@ -18,3 +18,7 @@ lex.yy.o
 y.tab.cc
 y.tab.hh
 y.tab.o
+shell
+log
+loop*
+compile_commands.json

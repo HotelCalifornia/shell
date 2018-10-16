@@ -164,7 +164,7 @@ void Command::execute() {
     }
     CLEAR_AND_RETURN
   } else if (tmpCmd == "exit") {
-    if (isatty(0)) std::cout << "logout" << std::endl;
+    if (isatty(0) && !Shell::is_subshell()) std::cout << "logout" << std::endl;
     clear();
     exit(0);
   } else if (tmpCmd == "setenv") {

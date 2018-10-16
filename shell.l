@@ -14,7 +14,7 @@
 #include <cstring>
 #include "y.tab.hh"
 
-static  void yyunput (int c,char *buf_ptr  );
+static void yyunput(int c, char* buf_ptr);
 
 void myunputc(int c) {
   unput(c);
@@ -78,13 +78,17 @@ void lsource(std::string* fname) {
   return SOURCE_COMMAND;
 }
 
+\$\((\"[^\"]*\")|([\\]([\\][\\])*[^\n\t]|[^&<>|\n\t \\]|([\\][\\])+)+\) {
+  yylval.cpp_string = new std::string(yytext);
+  return WORD;
+}
+
 \"[^\"]*\" {
   yylval.cpp_string = new std::string(yytext);
   return WORD;
 }
 
 ([\\]([\\][\\])*[^\n\t]|[^&<>|\n\t \\]|([\\][\\])+)+ {
-  /* Assume that file names have only alpha chars */
   yylval.cpp_string = new std::string(yytext);
   return WORD;
 }
