@@ -106,7 +106,7 @@ argument:
 
       *$1 = $1->substr(1, $1->size() - 2);
     } */
-
+    printf("dbg: %s\n", $1->c_str());
     if ($1->front() == '$' && *($1->begin() + 1) == '(' && $1->back() == ')') { /* subshell */
       /* strip '$(' and ')' */
       auto cmd = std::string($1->begin() + 2, $1->end());
