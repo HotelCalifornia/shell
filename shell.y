@@ -39,6 +39,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #include "shell.hh"
 
@@ -130,7 +131,7 @@ argument:
         std::string subshell_out = "";
         FILE* stream;
         char c;
-        stream = fdopen(outPipe[0]);
+        stream = fdopen(outPipe[0], "r");
         while ((c = fgetc(stream)) != EOF) {
           if (c == '\n') subshell_out += ' ';
           else subshell_out += c;
