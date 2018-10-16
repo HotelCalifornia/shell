@@ -36,7 +36,7 @@ void lsource(std::string* fname) {
 
 %%
 
-\$\((\"[^\"]*\")|([\\]([\\][\\])*[^\n\t]|([\\][\\])+)+\) {
+\$\(.*\) {
   yylval.cpp_string = new std::string(yytext);
   return WORD;
 }
