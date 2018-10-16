@@ -112,7 +112,7 @@ argument:
     if ($1->front() == '$' && *($1->begin() + 1) == '(' && $1->back() == ')') { /* subshell */
       printf("dbg: in subshell parse\n");
       /* strip '$(' and ')' */
-      auto cmd = std::string($1->begin() + 2, $1->end());
+      auto cmd = std::string($1->begin() + 2, $1->end() - 1);
       printf("\tcleaned subshell cmd: %s\n", cmd.c_str());
       pid_t pid;
 
