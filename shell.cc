@@ -19,7 +19,7 @@ static bool _is_subshell = false;
 bool Shell::is_subshell() { return _is_subshell; }
 
 void Shell::prompt(bool newline) {
-  if (isatty(0) && !getenv("SOURCE_COMMAND") && !getenv("SUBSHELL")) {
+  if (isatty(0) && !getenv("SOURCE_COMMAND") && !Shell::is_subshell()) {
     if (newline) printf("\n");
     printf("myshell>");
     fflush(stdout);
