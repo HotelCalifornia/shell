@@ -36,6 +36,11 @@ void lsource(std::string* fname) {
 
 %%
 
+\$\((\"[^\"]*\")|([\\]([\\][\\])*[^\n\t]|([\\][\\])+)+\) {
+  yylval.cpp_string = new std::string(yytext);
+  return WORD;
+}
+
 \n {
   return NEWLINE;
 }
@@ -76,11 +81,6 @@ void lsource(std::string* fname) {
 
 "source" {
   return SOURCE_COMMAND;
-}
-
-\$\((\"[^\"]*\")|([\\]([\\][\\])*[^\n\t]|[^&<>|\n\t \\]|([\\][\\])+)+\) {
-  yylval.cpp_string = new std::string(yytext);
-  return WORD;
 }
 
 \"[^\"]*\" {
