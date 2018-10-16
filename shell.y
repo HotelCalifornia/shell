@@ -141,6 +141,7 @@ argument:
           else subshell_out += c;
         }
         fclose(stream);
+        printf("\tsubshell output: %s\n", subshell_out.c_str());
         std::for_each(
           subshell_out.rbegin(),
           subshell_out.rend(),
