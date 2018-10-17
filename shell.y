@@ -45,7 +45,6 @@
 #include "shell.hh"
 
 void yyerror(const char* s);
-void myunputc(int c);
 int yylex();
 
 %}
@@ -63,6 +62,7 @@ commands:
 
 command_line:
   pipe_list iomodifier_list background_opt NEWLINE {
+    if (!Shell::is_subshell()) Shell::_currentCommand.print();
     Shell::_currentCommand.execute();
     Shell::prompt();
   }
@@ -109,54 +109,17 @@ argument:
       *$1 = $1->substr(1, $1->size() - 2);
     } */
     /* printf("dbg: %s\n", $1->c_str()); */
-    if ($1->front() == '$' && *($1->begin() + 1) == '(' && $1->back() == ')') { /* subshell */
-      printf("dbg: in subshell parse\n");
-      /* strip '$(' and ')' */
-      auto cmd = std::string($1->begin() + 2, $1->end() - 1);
-      printf("\tcleaned subshell cmd: %s\n", cmd.c_str());
-      pid_t pid;
+    /* if ($1->front() == '$' && *($1->begin() + 1) == '(' && $1->back() == ')') {
+      Shell::do_subshell($1);
+    } else { */
+    $1->erase(Shell::remove_if_unescaped($1, '\"'), $1->end());
+    /* handle escaped characters */
+    $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
+    /* run it again to clean up leftovers */
+    $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
 
-      int cmdPipe[2]; pipe(cmdPipe);
-      int outPipe[2]; pipe(outPipe);
-
-      if ((pid = fork()) == -1) {
-        yyerror("fatal: fork\n");
-        exit(-1);
-      } else if (pid == 0) { /* child */
-        dup2(cmdPipe[0], STDIN_FILENO); close(cmdPipe[1]);
-        dup2(outPipe[1], STDOUT_FILENO); close(outPipe[0]);
-        exit(execlp("/proc/self/exe", "subshell"));
-      } else { /* parent */
-        close(cmdPipe[0]);
-        close(outPipe[1]);
-        dprintf(cmdPipe[1], "%s\nexit\n", cmd.c_str());
-        /* wait for child proc to finish in order to ensure all the data we want is avail */
-        /* waitpid(pid, NULL, 0); */
-        std::string subshell_out = "";
-        FILE* stream;
-        char c;
-        stream = fdopen(outPipe[0], "r");
-        while ((c = fgetc(stream)) != EOF) {
-          if (c == '\n') subshell_out += ' ';
-          else subshell_out += c;
-        }
-        fclose(stream);
-        printf("\tsubshell output: %s\n", subshell_out.c_str());
-        std::for_each(
-          subshell_out.rbegin(),
-          subshell_out.rend(),
-          [](auto c) { myunputc(c); }
-        );
-      }
-    } else {
-      $1->erase(Shell::remove_if_unescaped($1, '\"'), $1->end());
-      /* handle escaped characters */
-      $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
-      /* run it again to clean up leftovers */
-      $1->erase(Shell::remove_if_unescaped($1, '\\'), $1->end());
-
-      Command::_currentSimpleCommand->insertArgument($1);
-    }
+    Command::_currentSimpleCommand->insertArgument($1);
+    /* } */
   }
   ;
 

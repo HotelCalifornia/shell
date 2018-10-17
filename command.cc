@@ -242,6 +242,7 @@ void Command::execute() {
       perror("fatal: fork\n");
       exit(2);
     } else if (pid == 0) { // child proc
+      // std::cerr << "here! " << *cmd->_arguments[0] << std::endl;
       // stdin from previous segment of pipe
       dup2(ifd, STDIN_FILENO);
       // stderr to specified fd
@@ -281,7 +282,6 @@ void Command::execute() {
       ifd = pipefd[0];
     }
   }
-
   // restore stdin, stdout, stderr
   dup2(stdinfd, STDIN_FILENO);
   dup2(stdoutfd, STDOUT_FILENO);

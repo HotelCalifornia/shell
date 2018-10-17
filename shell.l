@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstring>
 #include "y.tab.hh"
+#include "shell.hh"
 
 static void yyunput(int c, char* buf_ptr);
 
@@ -36,12 +37,20 @@ void lsource(std::string* fname) {
 
 %%
 
-\$\(.*\) {
+"source" {
+  return SOURCE_COMMAND;
+}
+
+\$\([^\n]*\) {
+  Shell::do_subshell(new std::string(yytext));
+}
+
+(([\\]([\\][\\])*[^\n\t]|[^&<>|\n\t \\]|([\\][\\])+)+)|(\"[^\"]*\") {
   yylval.cpp_string = new std::string(yytext);
   return WORD;
 }
 
-\n {
+[\n] {
   return NEWLINE;
 }
 
@@ -77,18 +86,4 @@ void lsource(std::string* fname) {
 
 "|" {
   return PIPE;
-}
-
-"source" {
-  return SOURCE_COMMAND;
-}
-
-\"[^\"]*\" {
-  yylval.cpp_string = new std::string(yytext);
-  return WORD;
-}
-
-([\\]([\\][\\])*[^\n\t]|[^&<>|\n\t \\]|([\\][\\])+)+ {
-  yylval.cpp_string = new std::string(yytext);
-  return WORD;
 }
