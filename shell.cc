@@ -134,7 +134,6 @@ int main(int argc, char** argv) {
       _is_subshell = true;
     }
   }
-  fprintf(stderr, "subshell: %d\n", Shell::is_subshell());
   // yydebug = 1;
   // handle SIGINT
   struct sigaction sa;
