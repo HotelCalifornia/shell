@@ -89,5 +89,6 @@ void lsource(std::string* fname) {
 }
 
 <<EOF>> {
-  return NEWLINE;
+  if (isatty(0) && !Shell::is_subshell()) printf("logout\n");
+  exit(0);
 }
