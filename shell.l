@@ -89,6 +89,6 @@ void lsource(std::string* fname) {
 }
 
 <<EOF>> {
-  if (isatty(0) && !Shell::is_subshell()) printf("logout\n");
+  if (isatty(0) && !Shell::is_subshell() && !getenv("SOURCE_COMMAND")) printf("logout\n");
   exit(0);
 }
