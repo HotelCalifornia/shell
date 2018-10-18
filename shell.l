@@ -87,10 +87,3 @@ void lsource(std::string* fname) {
 "|" {
   return PIPE;
 }
-
-<<EOF>> {
-  if (isatty(0) && !Shell::is_subshell() && !getenv("SOURCE_COMMAND")) {
-    printf("logout\n");
-    exit(0);
-  }
-}
