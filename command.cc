@@ -119,7 +119,7 @@ void Command::execute() {
       Shell::prompt();
       return;
   }
-
+  // std::cerr << *_simpleCommands[0]->_arguments[0] << std::endl;
   // print();
 
   for (auto cmd : _simpleCommands) {

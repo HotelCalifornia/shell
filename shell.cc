@@ -21,6 +21,8 @@ void myunputc(int c);
 
 int yyparse(void);
 
+static char* subshell_argv[2] = {(char*)"subshell", NULL};
+
 void Shell::do_subshell(std::string *input) {
   // printf("dbg: in subshell parse\n");
   /* strip '$(' and ')' */
@@ -47,7 +49,10 @@ void Shell::do_subshell(std::string *input) {
   } else if (pid == 0) { /* child */
     close(cmdPipe[1]);
     close(outPipe[0]);
-    execlp("/proc/self/exe", "subshell");
+
+    execvp("/proc/self/exe", subshell_argv);
+    fprintf(stderr, "%s\n", strerror(errno));
+    _exit(1);
   } else { /* parent */
     waitpid(-1, NULL, 0);
 
@@ -82,7 +87,20 @@ void Shell::do_subshell(std::string *input) {
 
     for (auto c : subshell_out) {
       if (c == '\n') processed_subshell_out += ' ';
-      else processed_subshell_out += c;
+      else {
+        switch (c) {
+          case '\\':
+          case '&':
+          case '>':
+          case '<':
+          case '|':
+          case '\'':
+          case '\"':
+            processed_subshell_out += '\\' + c;
+            break;
+          default: processed_subshell_out += c;
+        }
+      }
     }
     // processed_subshell_out.insert(processed_subshell_out.begin(), '\"');
     // processed_subshell_out.push_back('\"');
@@ -145,20 +163,21 @@ int main(int argc, char** argv) {
     exit(-1);
   }
 
-  // source shellrc
-  std::string sourcedir = "";
-  if (getenv("HOME")) sourcedir = getenv("HOME");
-  else sourcedir = ".";
+  if (!Shell::is_subshell()) {
+    // source shellrc
+    std::string sourcedir = "";
+    if (getenv("HOME")) sourcedir = getenv("HOME");
+    else sourcedir = ".";
 
-  sourcedir += "/.shellrc";
+    sourcedir += "/.shellrc";
 
-  if (access(sourcedir.c_str(), R_OK) != -1) {
-    // don't need to resume parse loop because we'll fall through
-    Shell::source(&sourcedir, false);
-  } else {
-    fprintf(stderr, "error: source %s: %s\n", sourcedir.c_str(), strerror(errno));
+    if (access(sourcedir.c_str(), R_OK) != -1) {
+      // don't need to resume parse loop because we'll fall through
+      Shell::source(&sourcedir, false);
+    } else {
+      fprintf(stderr, "error: source %s: %s\n", sourcedir.c_str(), strerror(errno));
+    }
   }
-
   Shell::prompt();
   yyparse();
 }

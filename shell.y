@@ -62,7 +62,7 @@ commands:
 
 command_line:
   pipe_list iomodifier_list background_opt NEWLINE {
-    if (!Shell::is_subshell()) Shell::_currentCommand.print();
+    /* if (!Shell::is_subshell()) Shell::_currentCommand.print(); */
     Shell::_currentCommand.execute();
     Shell::prompt();
   }
