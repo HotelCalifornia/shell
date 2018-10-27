@@ -23,14 +23,11 @@ void myunputc(int c);
 
 int yyparse(void);
 
-static char* subshell_argv[2] = {(char*)"subshell", NULL};
+static char* subshell_argv[3] = {(char*)"/proc/self/exe", (char*)"subshell", NULL};
 
-void Shell::do_subshell(std::string *input) {
-  // printf("dbg: in subshell parse\n");
+void Shell::do_subshell(std::string* input) {
   /* strip '$(' and ')' */
   auto cmd = std::string(input->begin() + 2, input->end() - 1);
-
-  // printf("\tcleaned subshell cmd: %s\n", cmd.c_str());
 
   pid_t pid;
 
@@ -51,8 +48,7 @@ void Shell::do_subshell(std::string *input) {
   } else if (pid == 0) { /* child */
     close(cmdPipe[1]);
     close(outPipe[0]);
-
-    execvp("/proc/self/exe", subshell_argv);
+    execvp(subshell_argv[0], subshell_argv);
     fprintf(stderr, "%s\n", strerror(errno));
     _exit(1);
   } else { /* parent */
@@ -69,24 +65,10 @@ void Shell::do_subshell(std::string *input) {
       if (c == EOF) break;
       subshell_out += c;
     }
-    // std::cout << subshell_out << std::endl;
     std::string processed_subshell_out = "";
-//XXX: uncomment if you want this shell to be more robust than /bin/sh
-#if 0
-    // preprocess string: quote lines with spaces and convert newlines to spaces
-    std::stringstream ss(subshell_out);
-    std::string line;
-    while (std::getline(ss, line, '\n')) {
-      if (std::find(line.begin(), line.end(), ' ') != line.end()) {
-        line.insert(line.begin(), '\"');
-        line.push_back('\"');
-      }
-      processed_subshell_out += line + ' ';
-    }
-#endif
     close(outPipe[0]);
-    // replace newlines with spaces
 
+    // replace newlines with spaces and escape unescaped characters
     for (auto c : subshell_out) {
       if (c == '\n') processed_subshell_out += ' ';
       else {
@@ -104,10 +86,6 @@ void Shell::do_subshell(std::string *input) {
         }
       }
     }
-    // processed_subshell_out.insert(processed_subshell_out.begin(), '\"');
-    // processed_subshell_out.push_back('\"');
-    // printf("\tsubshell output: %s\n", subshell_out.c_str());
-
     std::for_each(
       processed_subshell_out.rbegin(),
       processed_subshell_out.rend(),
@@ -141,12 +119,14 @@ void Shell::source(std::string* fname, bool needresume) {
 }
 
 extern "C" void handle_int(int) {
-  // do nothing
-  // fprintf(stderr, "\nreceived signal %d (%s)\n", sig, strsignal(sig));
-  // printf("[interrupted] ");
-
   Shell::prompt(true);
 }
+
+// for debug:
+// extern "C" void handle_segv(int) {
+//   std::cerr << "trap segv " << getpid() << std::endl;
+//   while (true) {}
+// }
 
 int main(int argc, char** argv) {
   if (argc > 1) {
@@ -154,7 +134,6 @@ int main(int argc, char** argv) {
       _is_subshell = true;
     }
   }
-  // yydebug = 1;
   // handle SIGINT
   struct sigaction sa;
   sa.sa_handler = handle_int;
@@ -164,11 +143,21 @@ int main(int argc, char** argv) {
     perror(strerror(errno));
     exit(-1);
   }
+  // for debug:
+  // struct sigaction sad;
+  // sad.sa_handler = handle_segv;
+  // sigemptyset(&sad.sa_mask);
+  // sad.sa_flags = 0;
+  // sigaction(SIGSEGV, &sad, NULL);
+  // yydebug = 1;
 
+  // set SHELL builtin var
   char* tmp = realpath(argv[0], NULL);
-  setenv("SHELL", strdup(tmp), true);
-  free(tmp);
-
+  if (tmp) {
+    setenv("SHELL", strdup(tmp), true);
+    free(tmp);
+  }
+  // set $ builtin var
   pid_t pid = getpid();
   setenv("$", std::to_string(pid).c_str(), true);
 
