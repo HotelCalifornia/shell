@@ -17,7 +17,7 @@ ifdef EDIT_MODE_ON
 	EDIT_MODE_OBJECTS=tty-raw-mode.o read-line.o
 endif
 
-all: git-commit shell
+all: shell
 
 lex.yy.o: shell.l
 	$(LEX) -o lex.yy.cc shell.l
