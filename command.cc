@@ -114,19 +114,18 @@ void Command::print() {
     printf( "\n\n" );
 }
 
-std::string Command::expand() {
-  std::string full_cmd;
+void Command::expand() {
   // environment variable and tilde expansion
   for (auto cmd : _simpleCommands) {
     for (auto arg : cmd->_arguments) {
-      auto it = arg->begin();
       while (true) { // tilde expansion
-        auto h = std::find(it, arg->end(), '~');
+        auto h = std::find(arg->begin(), arg->end(), '~');
         if (h == arg->end()) break;
         if (arg->size() == 1 || *(h + 1) == '/') { // standalone or followed by /
           // expand to current user home dir
           struct passwd* pwd = getpwnam(getenv("USER"));
-          arg->replace(h, h + 1, pwd->pw_dir);
+          if (pwd)
+            arg->replace(h, h + 1, pwd->pw_dir);
         } else { // followed by word, assumed to be username
           auto e = std::find(h, arg->end(), '/');
           std::string uname(h + 1, e);
@@ -135,21 +134,16 @@ std::string Command::expand() {
         }
       }
       while (true) { // environment variable expansion
-        auto b = std::find(it, arg->end(), '$');
+        auto b = std::find(arg->begin(), arg->end(), '$');
         auto e = std::find(b, arg->end(), '}');
         // invalid expansion syntax; ignore
         if (b == arg->end() || *(b + 1) != '{' || e == arg->end()) break;
         auto tvar = getenv(std::string(b + 2, e).c_str());
         std::string var = !tvar ? "" : tvar;
         arg->replace(b, e + 1, var);
-        it += (e - b);
       }
-      full_cmd += *arg + ' ';
     }
   }
-  // remove trailing space
-  full_cmd.pop_back();
-  return full_cmd;
   // setenv("_", full_cmd.c_str(), true);
 }
 
@@ -162,7 +156,7 @@ void Command::execute() {
   // std::cerr << *_simpleCommands[0]->_arguments[0] << std::endl;
   // print();
 
-  auto full_cmd = expand();
+  expand();
 
   // builtins
   auto tmpCmd = *(_simpleCommands[0]->_arguments[0]);
@@ -335,7 +329,7 @@ void Command::execute() {
     int status;
     waitpid(pid, &status, 0);
     setenv("?", std::to_string(status).c_str(), true);
-    setenv("_", full_cmd.c_str(), true);
+    setenv("_", _simpleCommands.back()->_arguments.back()->c_str(), true);
   }
   // Clear to prepare for next command
   clear();
