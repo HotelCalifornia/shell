@@ -21,6 +21,7 @@
 
 #include <fcntl.h>
 #include <signal.h>
+#include <pwd.h>
 #include <string.h> // strsignal
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -113,19 +114,27 @@ void Command::print() {
     printf( "\n\n" );
 }
 
-void Command::execute() {
-  // Don't do anything if there are no simple commands
-  if (_simpleCommands.size() == 0) {
-      Shell::prompt();
-      return;
-  }
-  // std::cerr << *_simpleCommands[0]->_arguments[0] << std::endl;
-  // print();
-
+std::string Command::expand() {
+  std::string full_cmd;
+  // environment variable and tilde expansion
   for (auto cmd : _simpleCommands) {
     for (auto arg : cmd->_arguments) {
       auto it = arg->begin();
-      while (true) {
+      while (true) { // tilde expansion
+        auto h = std::find(it, arg->end(), '~');
+        if (h == arg->end()) break;
+        if (arg->size() == 1 || *(h + 1) == '/') { // standalone or followed by /
+          // expand to current user home dir
+          struct passwd* pwd = getpwnam(getenv("USER"));
+          arg->replace(h, h + 1, pwd->pw_dir);
+        } else { // followed by word, assumed to be username
+          auto e = std::find(h, arg->end(), '/');
+          std::string uname(h + 1, e);
+          struct passwd* pwd = getpwnam(uname.c_str());
+          arg->replace(h, e + 1, pwd->pw_dir);
+        }
+      }
+      while (true) { // environment variable expansion
         auto b = std::find(it, arg->end(), '$');
         auto e = std::find(b, arg->end(), '}');
         // invalid expansion syntax; ignore
@@ -135,8 +144,25 @@ void Command::execute() {
         arg->replace(b, e + 1, var);
         it += (e - b);
       }
+      full_cmd += *arg + ' ';
     }
   }
+  // remove trailing space
+  full_cmd.pop_back();
+  return full_cmd;
+  // setenv("_", full_cmd.c_str(), true);
+}
+
+void Command::execute() {
+  // Don't do anything if there are no simple commands
+  if (_simpleCommands.size() == 0) {
+      Shell::prompt();
+      return;
+  }
+  // std::cerr << *_simpleCommands[0]->_arguments[0] << std::endl;
+  // print();
+
+  auto full_cmd = expand();
 
   // builtins
   auto tmpCmd = *(_simpleCommands[0]->_arguments[0]);
@@ -260,7 +286,10 @@ void Command::execute() {
       if (!strcmp(cmd->_arguments[0]->c_str(), "printenv")) {
         int i = 0;
         while (environ[i]) {
-          std::cout << environ[i++] << std::endl;
+          std::string tmp(environ[i]);
+          if (tmp[0] != '_' && tmp.find("_=") != 0) // skip _ env var
+            std::cout << environ[i] << std::endl;
+          i++;
         }
         exit(0);
       } else if (!strcmp(cmd->_arguments[0]->c_str(), "source")) {
@@ -299,15 +328,17 @@ void Command::execute() {
       HANDLE_ERRNO
       exit(-1);
     }
+    setenv("!", std::to_string(pid).c_str(), true);
   }
   // wait for non-backgrounded processes to complete before moving on
-  if (!_background) waitpid(pid, NULL, 0);
+  if (!_background) {
+    int status;
+    waitpid(pid, &status, 0);
+    setenv("?", std::to_string(status).c_str(), true);
+    setenv("_", full_cmd.c_str(), true);
+  }
   // Clear to prepare for next command
   clear();
-
-  // Print new prompt
-  // printf("[completed] ");
-  // Shell::prompt();
 }
 
 SimpleCommand * Command::_currentSimpleCommand;

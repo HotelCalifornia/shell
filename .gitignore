@@ -12,6 +12,8 @@ test-shell/err1
 test-shell/err2
 test-shell/file-list
 test-shell/files/*
+test-shell/file-list*
+test-shell/hello\ world
 *.o
 lex.yy.cc
 lex.yy.o
@@ -22,3 +24,4 @@ shell
 log
 loop*
 compile_commands.json
+.vscode

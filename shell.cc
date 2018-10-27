@@ -4,8 +4,10 @@
 #include <iostream>
 
 #include <cerrno>
+#include <climits>
 #include <csignal>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -162,6 +164,13 @@ int main(int argc, char** argv) {
     perror(strerror(errno));
     exit(-1);
   }
+
+  char* tmp = realpath(argv[0], NULL);
+  setenv("SHELL", strdup(tmp), true);
+  free(tmp);
+
+  pid_t pid = getpid();
+  setenv("$", std::to_string(pid).c_str(), true);
 
   if (!Shell::is_subshell()) {
     // source shellrc
