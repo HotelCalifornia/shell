@@ -126,14 +126,14 @@ void Command::expand() {
           struct passwd* pwd = getpwnam(getenv("USER"));
           if (pwd) {
             arg->replace(h, h + 1, pwd->pw_dir);
-          }
+          } else break; // no user found, don't worry about it
         } else { // followed by word, assumed to be username
           auto e = std::find(h, arg->end(), '/');
           std::string uname(h + 1, e);
           struct passwd* pwd = getpwnam(uname.c_str());
           if (pwd) {
             arg->replace(h, e, pwd->pw_dir);
-          }
+          } else break; // no user found, don't worry about it
         }
       }
       while (true) { // environment variable expansion
