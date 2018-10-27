@@ -118,32 +118,34 @@ void Command::expand() {
   // environment variable and tilde expansion
   for (auto cmd : _simpleCommands) {
     for (auto arg : cmd->_arguments) {
-      while (true) { // tilde expansion
-        auto h = std::find(arg->begin(), arg->end(), '~');
-        if (h == arg->end()) break;
-        if (arg->size() == 1 || *(h + 1) == '/') { // standalone or followed by /
-          // expand to current user home dir
-          struct passwd* pwd = getpwnam(getenv("USER"));
-          if (pwd) {
-            arg->replace(h, h + 1, pwd->pw_dir);
-          } else break; // no user found, don't worry about it
-        } else { // followed by word, assumed to be username
-          auto e = std::find(h, arg->end(), '/');
-          std::string uname(h + 1, e);
-          struct passwd* pwd = getpwnam(uname.c_str());
-          if (pwd) {
-            arg->replace(h, e, pwd->pw_dir);
-          } else break; // no user found, don't worry about it
+      if (arg) {
+        while (true) { // tilde expansion
+          auto h = std::find(arg->begin(), arg->end(), '~');
+          if (h == arg->end()) break;
+          if (arg->size() == 1 || *(h + 1) == '/') { // standalone or followed by /
+            // expand to current user home dir
+            struct passwd* pwd = getpwnam(getenv("USER"));
+            if (pwd) {
+              arg->replace(h, h + 1, pwd->pw_dir);
+            } else break; // no user found, don't worry about it
+          } else { // followed by word, assumed to be username
+            auto e = std::find(h, arg->end(), '/');
+            std::string uname(h + 1, e);
+            struct passwd* pwd = getpwnam(uname.c_str());
+            if (pwd) {
+              arg->replace(h, e, pwd->pw_dir);
+            } else break; // no user found, don't worry about it
+          }
         }
-      }
-      while (true) { // environment variable expansion
-        auto b = std::find(arg->begin(), arg->end(), '$');
-        auto e = std::find(b, arg->end(), '}');
-        // invalid expansion syntax; ignore
-        if (b == arg->end() || *(b + 1) != '{' || e == arg->end()) break;
-        auto tvar = getenv(std::string(b + 2, e).c_str());
-        std::string var = !tvar ? "" : tvar;
-        arg->replace(b, e + 1, var);
+        while (true) { // environment variable expansion
+          auto b = std::find(arg->begin(), arg->end(), '$');
+          auto e = std::find(b, arg->end(), '}');
+          // invalid expansion syntax; ignore
+          if (b == arg->end() || *(b + 1) != '{' || e == arg->end()) break;
+          auto tvar = getenv(std::string(b + 2, e).c_str());
+          std::string var = !tvar ? "" : tvar;
+          arg->replace(b, e + 1, var);
+        }
       }
     }
   }
