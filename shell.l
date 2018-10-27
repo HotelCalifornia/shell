@@ -87,3 +87,8 @@ void lsource(std::string* fname) {
 "|" {
   return PIPE;
 }
+
+<<EOF>> {
+  static int once = 0;
+  return (once = !once) ? NEWLINE : 0;
+}
