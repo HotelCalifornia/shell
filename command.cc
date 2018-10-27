@@ -125,15 +125,15 @@ void Command::expand() {
           // expand to current user home dir
           struct passwd* pwd = getpwnam(getenv("USER"));
           if (pwd) {
-            std::string dir(pwd->pw_dir);
-            if (dir.back() != '/') dir.push_back('/')
-            arg->replace(h, h + 1, dir);
+            arg->replace(h, h + 1, pwd->pw_dir);
           }
         } else { // followed by word, assumed to be username
           auto e = std::find(h, arg->end(), '/');
           std::string uname(h + 1, e);
           struct passwd* pwd = getpwnam(uname.c_str());
-          arg->replace(h, e + 1, pwd->pw_dir);
+          if (pwd) {
+            arg->replace(h, e, pwd->pw_dir);
+          }
         }
       }
       while (true) { // environment variable expansion
