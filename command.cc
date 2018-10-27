@@ -331,7 +331,9 @@ void Command::execute() {
   if (!_background) {
     int status;
     waitpid(pid, &status, 0);
-    setenv("?", std::to_string(status).c_str(), true);
+    if (WIFEXITED(status)) {
+      setenv("?", std::to_string(WEXITSTATUS(status)).c_str(), true);
+    }
     setenv("_", _simpleCommands.back()->_arguments.back()->c_str(), true);
   }
   // Clear to prepare for next command
