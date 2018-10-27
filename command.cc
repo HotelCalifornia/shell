@@ -124,8 +124,11 @@ void Command::expand() {
         if (arg->size() == 1 || *(h + 1) == '/') { // standalone or followed by /
           // expand to current user home dir
           struct passwd* pwd = getpwnam(getenv("USER"));
-          if (pwd)
-            arg->replace(h, h + 1, pwd->pw_dir);
+          if (pwd) {
+            std::string dir(pwd->pw_dir);
+            if (dir.back() != '/') dir.push_back('/')
+            arg->replace(h, h + 1, dir);
+          }
         } else { // followed by word, assumed to be username
           auto e = std::find(h, arg->end(), '/');
           std::string uname(h + 1, e);
