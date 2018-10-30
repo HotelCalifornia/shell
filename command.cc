@@ -489,7 +489,8 @@ void Command::execute() {
       else // otherwise (last command) send output to specified fd
         dup2(ofd, STDOUT_FILENO);
 
-      close(pipefd[0]); // close input
+      close(pipefd[0]); // close input pipe
+      close(pipefd[1]); // close output pipe
 
       // handle builtins
       if (!strcmp(cmd->_arguments[0]->c_str(), "printenv")) {
@@ -512,17 +513,23 @@ void Command::execute() {
         for (auto arg : cmd->_arguments) argv.push_back(arg->data());
         argv.push_back(NULL);
 
-        exit(execvp(argv[0], argv.data()));
+        if (execvp(argv[0], argv.data()) == -1)
+          std::cerr << "error: " << *cmd->_arguments[0] << ": " << strerror(errno) << std::endl;
+
+        exit(-1);
       }
     } else { // parent
       close(pipefd[1]); // close segment output
       ifd = pipefd[0];
     }
   }
+  // close pipe
+  close(pipefd[0]); close(pipefd[1]);
   // restore stdin, stdout, stderr
   dup2(stdinfd, STDIN_FILENO);
   dup2(stdoutfd, STDOUT_FILENO);
   dup2(stderrfd, STDERR_FILENO);
+  close(stdinfd); close(stdoutfd); close(stderrfd);
 
   // special print for backgrounded processes
   if (_background) {

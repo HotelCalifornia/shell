@@ -102,6 +102,12 @@ void Shell::prompt(bool newline) {
   if (isatty(0) && !getenv("SOURCE_COMMAND") && !Shell::is_subshell()) {
     if (newline) printf("\n");
 
+    if (getenv("ON_ERROR")) {
+      if (getenv("?")) {
+        if (std::stoi(getenv("?"))) std::cout << getenv("ON_ERROR") << std::endl;
+      }
+    }
+
     std::string ps1 = "myshell>";
     if (getenv("PROMPT")) ps1 = getenv("PROMPT");
     std::cout << ps1;

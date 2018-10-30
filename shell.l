@@ -27,6 +27,7 @@ void lsource(std::string* fname) {
     yypush_buffer_state(yy_create_buffer(sfile, YY_BUF_SIZE));
     yyparse();
     yypop_buffer_state();
+    fclose(sfile);
     yyrestart(stdin);
   } else {
     perror(strerror(errno));
