@@ -33,3 +33,4 @@
 # Extra features
 
 - `cd -` returns to previous directory
+- support ON_ERROR environment variable
