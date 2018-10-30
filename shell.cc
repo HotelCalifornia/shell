@@ -101,7 +101,10 @@ bool Shell::is_subshell() { return _is_subshell; }
 void Shell::prompt(bool newline) {
   if (isatty(0) && !getenv("SOURCE_COMMAND") && !Shell::is_subshell()) {
     if (newline) printf("\n");
-    printf("myshell>");
+
+    std::string ps1 = "myshell>";
+    if (getenv("PROMPT")) ps1 = getenv("PROMPT");
+    std::cout << ps1;
     fflush(stdout);
   }
 }
