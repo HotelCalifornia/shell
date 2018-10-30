@@ -257,10 +257,15 @@ std::vector<std::string> Command::wildcard_helper(
   // for each name, test whether it matches the given pattern. if it does, add
   // it to the result vector `m`
   for (auto name : names) {
-    if (wildcard_match(name, pattern))
+    if (wildcard_match(name, pattern)) {
       m.push_back(
-        dir == "." ? name : dir + "/" + name
+        dir == "." ?
+          name :
+          dir.back() == '/' ?
+            dir + name :
+            dir + "/" + name
       );
+    }
   }
 
   // sort the results in ascending order
